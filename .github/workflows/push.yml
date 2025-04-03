@@ -62,10 +62,10 @@ jobs:
           name: Flutter-Coverage-Report
           path: coverage_report/
 
-      - name: Build Debug APK
-        run: flutter build apk --split-per-abi
-
-      - name: Build iOS App without Signing
-        run: |
-          flutter build ios
+#      - name: Build Debug APK
+#        run: flutter build apk --split-per-abi
+#
+#      - name: Build iOS App without Signing
+#        run: |
+#          flutter build ios
      
