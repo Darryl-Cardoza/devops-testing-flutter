@@ -49,7 +49,7 @@ jobs:
         run: flutter test --coverage
 
       - name: Install LCOV
-        run: sudo apt-get install lcov
+        run: brew install lcov
 
       - name: Generate HTML coverage report
         run: |
