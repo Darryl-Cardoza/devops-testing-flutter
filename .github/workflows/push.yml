@@ -1,0 +1,63 @@
+on:
+  push:
+    branches:
+      - main
+      - master
+name: "Test and build pushed code"
+jobs:
+  build:
+    name: Test Pushed Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Java
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: 'oracle'
+          java-version: '17'
+
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.4'
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run tests and generate report
+        run: |
+          mkdir -p test-results
+          flutter test --machine > test-results/results.json
+          flutter pub run test_reporter test-results/results.json > test-results/report.html
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: Flutter-Test-Report
+          path: test-results/report.html
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Install LCOV
+        run: sudo apt-get install lcov
+
+      - name: Generate HTML coverage report
+        run: |
+          mkdir -p coverage_report
+          genhtml coverage/lcov.info --output-directory coverage_report
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: Flutter-Coverage-Report
+          path: coverage_report/
+
+      - name: Build Debug APK
+        run: flutter build apk --split-per-abi
+
+      - name: Build Debug IPA
+        run: flutter build ipa --no-codesign
