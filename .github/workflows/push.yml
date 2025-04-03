@@ -61,5 +61,5 @@ jobs:
 
       - name: Build iOS App without Signing
         run: |
-          flutter build ipa
+          flutter build ios
      
