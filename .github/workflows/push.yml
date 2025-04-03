@@ -3,61 +3,35 @@ on:
     branches:
       - main
       - master
+
   pull_request:
     branches:
       - main
       - master
 
-name: "Test and Build Code"
-
+name: "Test and build pushed code"
 jobs:
-  setup:
-    name: Setup Environment
+  build:
+    name: Test Pushed Code
     runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache Flutter
-        id: cache-flutter
-        uses: actions/cache@v4
+      - name: Set Up Java (Faster)
+        uses: actions/setup-java@v4
         with:
-          path: ~/.flutter
-          key: flutter-3.27.4-${{ runner.os }}
-          restore-keys: |
-            flutter-3.27.4-
+          distribution: 'temurin'  # Faster than 'oracle'
+          java-version: '17'
 
-      - name: Install Flutter (If Not Cached)
-        if: steps.cache-flutter.outputs.cache-hit != 'true'
+      - name: Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.27.4'
           channel: 'stable'
 
-      - name: Add Flutter to PATH
-        run: echo "$HOME/.flutter/bin" >> $GITHUB_PATH
-
       - name: Install Dependencies
         run: flutter pub get
-
-  test:
-    name: Run Tests
-    needs: setup
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Restore Flutter Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.flutter
-          key: flutter-3.27.4-${{ runner.os }}
-          restore-keys: |
-            flutter-3.27.4-
-
-      - name: Add Flutter to PATH
-        run: echo "$HOME/.flutter/bin" >> $GITHUB_PATH
 
       - name: Run tests and generate report
         run: |
@@ -71,69 +45,27 @@ jobs:
           name: Flutter-Test-Report
           path: test-results/test-report.xml
 
-  build_apk:
-    name: Build Debug APK
-    needs: setup
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Run tests with coverage
+        run: flutter test --coverage
 
-      - name: Restore Flutter Cache
-        uses: actions/cache@v4
+      - name: Install LCOV
+        run: sudo apt-get install lcov
+
+      - name: Generate HTML coverage report
+        run: |
+          mkdir -p coverage_report
+          genhtml coverage/lcov.info --output-directory coverage_report
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.flutter
-          key: flutter-3.27.4-${{ runner.os }}
-          restore-keys: |
-            flutter-3.27.4-
-
-      - name: Add Flutter to PATH
-        run: echo "$HOME/.flutter/bin" >> $GITHUB_PATH
+          name: Flutter-Coverage-Report
+          path: coverage_report/
 
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      - name: Upload APK Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: Debug-APK
-          path: build/app/outputs/flutter-apk/
-
-  build_ios_debug:
-    name: Build iOS Debug
-    needs: setup
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Restore Flutter Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.flutter
-          key: flutter-3.27.4-${{ runner.os }}
-          restore-keys: |
-            flutter-3.27.4-
-
-      - name: Add Flutter to PATH
-        run: echo "$HOME/.flutter/bin" >> $GITHUB_PATH
-
-      - name: Install CocoaPods
+      - name: Build iOS App without Signing
         run: |
-          cd ios
-          pod install
-          cd ..
-
-      - name: Build iOS Debug
-        run: flutter build ios --debug
-
-      - name: Archive iOS Debug Build
-        run: |
-          mkdir -p build/ios_debug
-          cp -r build/ios/iphoneos build/ios_debug/
-
-      - name: Upload iOS Debug Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: iOS-Debug-Build
-          path: build/ios_debug/
+          flutter build ios
+     
