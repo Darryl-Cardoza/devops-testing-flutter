@@ -3,19 +3,28 @@ on:
     branches:
       - main
       - master
+
+  pull_request:
+    branches:
+      - main
+      - master
+
 name: "Test and build pushed code"
+
 jobs:
-  build:
-    name: Test Pushed Code
-    runs-on: ubuntu-latest
+  setup:
+    name: Setup Environment
+    runs-on: macos-latest
+    outputs:
+      flutter_cache_key: ${{ steps.cache-flutter.outputs.cache-hit }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set Up Java (Faster)
+      - name: Set Up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'  # Faster than 'oracle'
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Set Up Flutter
@@ -26,6 +35,14 @@ jobs:
 
       - name: Install Dependencies
         run: flutter pub get
+
+  test:
+    name: Run Tests
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Run tests and generate report
         run: |
@@ -38,6 +55,14 @@ jobs:
         with:
           name: Flutter-Test-Report
           path: test-results/test-report.xml
+
+  coverage:
+    name: Generate Coverage Report
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Run tests with coverage
         run: flutter test --coverage
@@ -56,10 +81,35 @@ jobs:
           name: Flutter-Coverage-Report
           path: coverage_report/
 
+  build_apk:
+    name: Build Debug APK
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      - name: Build iOS App without Signing
+  build_ios:
+    name: Build iOS App
+    needs: setup
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build iOS Debug
+        run: flutter build ios --debug
+
+      - name: Archive iOS Build
         run: |
-          flutter build ios
-     
+          mkdir -p build/ios_debug
+          cp -r build/ios/iphoneos build/ios_debug/
+
+      - name: Upload iOS Debug Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-Debug-Build
+          path: build/ios_debug/
