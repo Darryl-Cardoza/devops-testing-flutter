@@ -14,8 +14,6 @@ jobs:
   setup:
     name: Setup Environment
     runs-on: macos-latest
-    outputs:
-      flutter_cache_key: ${{ steps.cache-flutter.outputs.cache-hit }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,7 +27,7 @@ jobs:
           restore-keys: |
             flutter-3.27.4-
 
-      - name: Set Up Flutter
+      - name: Install Flutter (If Not Cached)
         if: steps.cache-flutter.outputs.cache-hit != 'true'
         uses: subosito/flutter-action@v2
         with:
