@@ -61,9 +61,5 @@ jobs:
 
       - name: Build iOS App without Signing
         run: |
-          xcodebuild -workspace ios/Runner.xcworkspace \
-          -scheme Runner \
-          -sdk iphoneos \
-          -configuration Release \
-          build CODE_SIGNING_ALLOWED=NO
+          flutter build ipa
      
