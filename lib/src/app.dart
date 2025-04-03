@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
           ),
           initWithState: AppEmpty(),
         ),
-        child: MyHomePage(title: 'Flutter Testing Tutorial'),
+        child: MyHomePage(title: 'Movies List App'),
       ),
     );
   }
