@@ -31,13 +31,13 @@ jobs:
         run: |
           mkdir -p test-results
           flutter test --machine > test-results/results.json
-          flutter pub run test_reporter test-results/results.json > test-results/report.html
+          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Test-Report
-          path: test-results/report.html
+          path: test-results/test-report.xml
 
       - name: Run tests with coverage
         run: flutter test --coverage

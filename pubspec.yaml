@@ -43,6 +43,7 @@ dev_dependencies:
   network_image_mock: ^2.0.1
 
   flutter_lints: ^1.0.0
+  junitreport: ^2.0.2
 
 flutter:
   uses-material-design: true
