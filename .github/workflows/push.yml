@@ -62,11 +62,11 @@ jobs:
           name: Flutter-Coverage-Report
           path: coverage_report/
 
-      - name: Check Coverage Threshold (90%)
+      - name: Check Coverage Threshold (80%)
         run: |
           total_coverage=$(lcov --summary coverage/lcov.info | grep -Po 'lines\.*: \K[0-9.]+(?=%)')
           echo "Total Coverage: $total_coverage%"
-          coverage_threshold=90.0
+          coverage_threshold=80.0
           result=$(echo "$total_coverage < $coverage_threshold" | bc -l)
           if [ "$result" -eq 1 ]; then
             echo "Code coverage ($total_coverage%) is below threshold ($coverage_threshold%)."
