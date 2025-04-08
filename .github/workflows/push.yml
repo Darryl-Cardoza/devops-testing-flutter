@@ -1,89 +1,110 @@
+name: "Test and Build Flutter App"
+
+# Trigger this workflow on push or pull request to main/master branches
 on:
   push:
-    branches:
-      - main
-      - master
-
+    branches: [ main, master ]
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
 
-name: "Test and build pushed code"
 jobs:
   build:
-    name: Test Pushed Code
-    runs-on: ubuntu-latest
+    name: Test and Build
+    runs-on: ubuntu-latest  # The job runs on the latest Ubuntu virtual machine
+
     steps:
-      - name: Checkout repository
+      # Step 1: Checkout the project repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Up Java (Faster)
+      # Step 2: Load environment variables from .github/env.sh
+      # This makes it easy to configure versions or flags without editing this file
+      - name: Load Environment Variables
+        run: |
+          source .github/env.sh
+          echo "JAVA_VERSION=$JAVA_VERSION" >> $GITHUB_ENV
+          echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
+          echo "FLUTTER_CHANNEL=$FLUTTER_CHANNEL" >> $GITHUB_ENV
+          echo "COVERAGE_THRESHOLD=$COVERAGE_THRESHOLD" >> $GITHUB_ENV
+          echo "BUILD_IOS=$BUILD_IOS" >> $GITHUB_ENV
+
+      # Step 3: Set up Java (required by Flutter and some build tools)
+      - name: Set Up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'  # Faster than 'oracle'
-          java-version: '17'
+          distribution: 'temurin'  # Temurin is a fast, open-source JDK distribution
+          java-version: ${{ env.JAVA_VERSION }}
 
+      # Step 4: Set up Flutter SDK
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.4'
-          channel: 'stable'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
 
+      # Step 5: Install Dart/Flutter dependencies
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run tests and generate report
+      # Step 6: Run unit tests and generate a machine-readable report
+      - name: Run Tests and Generate Report
         run: |
           mkdir -p test-results
           flutter test --machine > test-results/results.json
           cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml
 
+      # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Test-Report
           path: test-results/test-report.xml
 
-      - name: Run tests with coverage
+      # Step 8: Run tests again, this time collecting code coverage data
+      - name: Run Tests with Coverage
         run: flutter test --coverage
 
+      # Step 9: Install LCOV (tool to generate HTML coverage reports)
       - name: Install LCOV
         run: sudo apt install lcov
 
-      - name: Generate HTML coverage report
+      # Step 10: Convert coverage data into an HTML report
+      - name: Generate HTML Coverage Report
         run: |
           mkdir -p coverage_report
           genhtml coverage/lcov.info --output-directory coverage_report
 
+      # Step 11: Upload the HTML coverage report as an artifact
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Coverage-Report
           path: coverage_report/
 
-      - name: Check Coverage Threshold (80%)
+      # Step 12: Check if code coverage meets the threshold defined in env.sh
+      - name: Check Coverage Threshold
         run: |
           total_coverage=$(lcov --summary coverage/lcov.info | grep -Po 'lines\.*: \K[0-9.]+(?=%)')
           echo "Total Coverage: $total_coverage%"
-          coverage_threshold=80.0
-          result=$(echo "$total_coverage < $coverage_threshold" | bc -l)
+          result=$(echo "$total_coverage < $COVERAGE_THRESHOLD" | bc -l)
           if [ "$result" -eq 1 ]; then
-            echo "Code coverage ($total_coverage%) is below threshold ($coverage_threshold%)."
-            exit 1
+            echo "Code coverage ($total_coverage%) is below threshold ($COVERAGE_THRESHOLD%)."
+            exit 1 
           else
-            echo "Code coverage ($total_coverage%) meets the threshold."
+            echo "Code coverage ($total_coverage%) meets the threshold." 
           fi
 
+      # Step 13: Run SonarQube scan for code quality analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      # Step 14: Build Android APK for testing or release (split per ABI for smaller size)
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
-#
-#      - name: Build iOS App without Signing
-#        run: |
-#          flutter build ios
-     
+
+      # Step 15: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
+      - name: Build iOS App
+        if: ${{ env.BUILD_IOS == 'true' }}
+        run: flutter build ios --no-codesign
