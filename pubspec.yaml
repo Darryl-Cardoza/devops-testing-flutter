@@ -22,6 +22,9 @@ dependencies:
   # Widgets that make it easy to integrate blocs and cubits into Flutter. Built to work with package:bloc.
   flutter_bloc: ^7.3.0
 
+  # Environment Variable file
+  flutter_dotenv: ^5.1.0
+
 dev_dependencies:
   integration_test:
     sdk: flutter
@@ -49,3 +52,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/devfest.jpeg
+    - .env

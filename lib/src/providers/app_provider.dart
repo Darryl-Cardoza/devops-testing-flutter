@@ -7,10 +7,10 @@ class AppProvider extends StatelessWidget {
   final Client httpClient;
   final Widget child;
 
-  AppProvider({
+  const AppProvider({Key? key,
     required this.httpClient,
     required this.child,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

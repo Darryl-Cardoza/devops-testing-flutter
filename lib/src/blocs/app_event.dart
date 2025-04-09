@@ -1,7 +1,7 @@
 abstract class AppEvent {}
 
 class FetchEvent extends AppEvent {
-  final region;
+  final dynamic region;
 
   FetchEvent({this.region});
 }

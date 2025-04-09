@@ -16,7 +16,7 @@ class MoviesResponse extends Equatable {
   @JsonKey(name: 'results')
   final List<Movie> movies;
 
-  MoviesResponse({
+  const MoviesResponse({
     required this.page,
     required this.totalPages,
     required this.totalResults,
@@ -27,10 +27,10 @@ class MoviesResponse extends Equatable {
 
   @override
   List<dynamic> get props => [
-        this.page,
-        this.totalPages,
-        this.totalResults,
-        this.movies,
+        page,
+        totalPages,
+        totalResults,
+        movies,
       ];
 }
 
@@ -96,20 +96,20 @@ class Movie extends Equatable {
 
   @override
   List<dynamic> get props => [
-        this.id,
-        this.video,
-        this.voteCount,
-        this.voteAverage,
-        this.title,
-        this.posterPath,
-        this.originalLanguage,
-        this.originalTitle,
-        this.adult,
-        this.overview,
-        this.backdropPath,
-        this.popularity,
-        this.releaseDate,
-        this.favorite,
+        id,
+        video,
+        voteCount,
+        voteAverage,
+        title,
+        posterPath,
+        originalLanguage,
+        originalTitle,
+        adult,
+        overview,
+        backdropPath,
+        popularity,
+        releaseDate,
+        favorite,
       ];
 
   String get posterPathResolved =>

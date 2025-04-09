@@ -23,7 +23,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         final list = await service.loadMovies();
         yield AppLoaded(response: list);
       } catch (e) {
-        print(e);
         yield AppError();
       }
     }

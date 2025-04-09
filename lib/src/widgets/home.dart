@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_movie_deep_dive_test/src/blocs/app_event.dart';
 import 'package:flutter_movie_deep_dive_test/src/blocs/blocs.dart';
 import 'package:flutter_movie_deep_dive_test/src/widgets/widgets.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
 
-  MyHomePage({
+  const MyHomePage({
     Key? key,
     required this.title,
   }) : super(key: key);
@@ -27,10 +26,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           children: <Widget>[
             DrawerHeader(
-              child: Container(
-                child: Image.asset(
-                  "assets/devfest.jpeg",
-                ),
+              child: Image.asset(
+                "assets/devfest.jpeg",
               ),
             ),
           ],
@@ -53,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
           // Is Loading
           if (state is AppLoading) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           // Is Loaded
@@ -63,12 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
           // State error
           if (state is AppError) {
-            return Text(
+            return const Text(
               'Something went wrong!',
               style: TextStyle(color: Colors.red),
             );
           }
-          return Center(child: Text('Wait ...'));
+          return const Center(child: Text('Wait ...'));
         }),
       ),
     );

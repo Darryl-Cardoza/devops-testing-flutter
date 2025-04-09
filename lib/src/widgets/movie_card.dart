@@ -30,20 +30,20 @@ class MovieCard extends StatelessWidget {
                   data.title ?? "",
                   key: Key('${data.id}-title'),
                   textAlign: TextAlign.left,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
               ),
               Text(
                 data.overview ?? "",
                 key: Key("${data.id}-overview"),
-                style: TextStyle(color: Colors.black54),
+                style: const TextStyle(color: Colors.black54),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Row(
                   children: <Widget>[
-                    Icon(Icons.movie),
-                    Text('release-date:'),
+                    const Icon(Icons.movie),
+                    const Text('release-date:'),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
