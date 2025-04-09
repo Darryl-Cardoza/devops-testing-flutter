@@ -22,11 +22,6 @@ jobs:
       - name: Load Environment Variables
         run: |
           source .github/env.sh
-          echo "JAVA_VERSION=$JAVA_VERSION" >> $GITHUB_ENV
-          echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
-          echo "FLUTTER_CHANNEL=$FLUTTER_CHANNEL" >> $GITHUB_ENV
-          echo "COVERAGE_THRESHOLD=$COVERAGE_THRESHOLD" >> $GITHUB_ENV
-          echo "BUILD_IOS=$BUILD_IOS" >> $GITHUB_ENV
 
       # Step 3: Set up Java (required by Flutter and some build tools)
       - name: Set Up Java
