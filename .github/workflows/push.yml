@@ -101,12 +101,6 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=your_project_key
-            -Dsonar.sources=lib
-            -Dsonar.exclusions=**/*.g.dart,**/*.freezed.dart
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
       # Step 15: Build Android APK for testing or release (split per ABI for smaller size)
       - name: Build Debug APK
