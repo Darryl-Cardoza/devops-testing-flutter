@@ -1,5 +1,4 @@
 # Change values as needed
-export JAVA_VERSION=17
 export FLUTTER_VERSION=3.27.4
 export FLUTTER_CHANNEL=stable
 export COVERAGE_THRESHOLD=80.0
