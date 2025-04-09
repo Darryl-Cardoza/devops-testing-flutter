@@ -89,17 +89,30 @@ jobs:
             echo "Code coverage ($total_coverage%) meets the threshold." 
           fi
 
-      # Step 13: Run SonarQube scan for code quality analysis
+      # Step 13: Debug LCOV output (optional, can be removed in production)
+      - name: Debug LCOV Output
+        run: |
+          ls -la coverage
+          head coverage/lcov.info
+
+
+      # Step 14: Run SonarQube scan for code quality analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=your_project_key
+            -Dsonar.sources=lib
+            -Dsonar.exclusions=**/*.g.dart,**/*.freezed.dart
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
-      # Step 14: Build Android APK for testing or release (split per ABI for smaller size)
+      # Step 15: Build Android APK for testing or release (split per ABI for smaller size)
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      # Step 15: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
+      # Step 16: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
       - name: Build iOS App
         if: ${{ env.BUILD_IOS == 'true' }}
         run: flutter build ios --no-codesign
