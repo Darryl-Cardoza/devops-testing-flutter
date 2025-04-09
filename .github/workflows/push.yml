@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'  # Temurin is a fast, open-source JDK distribution
-          java-version: ${{ env.JAVA_VERSION }}
+          java-version: 17
 
       # Step 4: Set up Flutter SDK
       - name: Set Up Flutter
