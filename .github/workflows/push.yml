@@ -56,25 +56,32 @@ jobs:
           path: test-results/test-report.xml
 
       # Step 8: Run tests again, this time collecting code coverage data
-      - name: Run Tests with Coverage
+      # Step 1: Run Tests with Coverage
+      - name: Run Flutter Tests with Coverage
         run: flutter test --coverage
 
-      # Step 9: Install LCOV (tool to generate HTML coverage reports)
+      # Step 2: Install LCOV (HTML report generator)
       - name: Install LCOV
-        run: sudo apt install lcov
+        run: sudo apt-get install -y lcov
 
-      # Step 10: Convert coverage data into an HTML report
+      # Step 3: Generate Beautiful HTML Coverage Report
       - name: Generate HTML Coverage Report
         run: |
           mkdir -p coverage_report
-          genhtml coverage/lcov.info --output-directory coverage_report
+          genhtml coverage/lcov.info \
+            --output-directory coverage_report \
+            --title "Flutter Test Coverage" \
+            --show-details \
+            --highlight \
+            --legend
 
-      # Step 11: Upload the HTML coverage report as an artifact
-      - name: Upload Coverage Report
+      # Step 4: Upload HTML Coverage Report as Artifact
+      - name: Upload HTML Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Coverage-Report
           path: coverage_report/
+
 
       # Step 12: Check if code coverage meets the threshold defined in env.sh
       - name: Check Coverage Threshold
