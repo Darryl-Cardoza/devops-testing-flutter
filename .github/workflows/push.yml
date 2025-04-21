@@ -110,7 +110,7 @@ jobs:
             exit 1
           fi
 
-      # Step 15: Run SonarQube scan for code quality analysis
+      # Step 15: Run SonarQube scan for code coverage analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
@@ -118,11 +118,21 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Step 16: Build Android APK for testing or release (split per ABI for smaller size)
+      # Step 16: Run Snyk scan for code quality analysis
+      - name: Snyk Security Scan
+        uses: snyk/actions/cli@master
+        continue-on-error: true  # Avoid failing CI due to Snyk issues
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+
+
+      # Step 17: Build Android APK for testing or release (split per ABI for smaller size)
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      # Step 17: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
+      # Step 18: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
       - name: Build iOS App
         if: ${{ env.BUILD_IOS == 'true' }}
         run: flutter build ios --no-codesign
