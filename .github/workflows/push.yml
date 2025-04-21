@@ -55,16 +55,15 @@ jobs:
           name: Flutter-Test-Report
           path: test-results/test-report.xml
 
-      # Step 8: Run tests again, this time collecting code coverage data
-      # Step 1: Run Tests with Coverage
+      # Step 8: Run Tests with Coverage
       - name: Run Flutter Tests with Coverage
         run: flutter test --coverage
 
-      # Step 2: Install LCOV (HTML report generator)
+      # Step 9: Install LCOV (HTML report generator)
       - name: Install LCOV
         run: sudo apt-get install -y lcov
 
-      # Step 3: Generate Beautiful HTML Coverage Report
+      # Step 10: Generate Beautiful HTML Coverage Report
       - name: Generate HTML Coverage Report
         run: |
           mkdir -p coverage_report
@@ -75,7 +74,7 @@ jobs:
             --highlight \
             --legend
 
-      # Step 4: Upload HTML Coverage Report as Artifact
+      # Step 11: Upload HTML Coverage Report as Artifact
       - name: Upload HTML Coverage Report
         uses: actions/upload-artifact@v4
         with:
@@ -126,13 +125,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       # Step 16: Run Snyk scan for code quality analysis
-      - name: Snyk Security Scan
-        uses: snyk/actions/cli@master
-        continue-on-error: true  # Avoid failing CI due to Snyk issues
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions@v1
         with:
           command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
 
 
       # Step 17: Build Android APK for testing or release (split per ABI for smaller size)
