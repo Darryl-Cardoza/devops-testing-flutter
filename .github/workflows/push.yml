@@ -102,18 +102,27 @@ jobs:
           ls -la coverage
           head coverage/lcov.info
 
+      # Step 14: Check if code coverage report is available or not
+      - name: Ensure Coverage Report is Ready
+        run: |
+          if [ ! -f coverage/lcov.info ]; then
+            echo "lcov.info not found! Did coverage generation fail?"
+            exit 1
+          fi
 
-      # Step 14: Run SonarQube scan for code quality analysis
+      # Step 15: Run SonarQube scan for code quality analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Step 15: Build Android APK for testing or release (split per ABI for smaller size)
+      # Step 16: Build Android APK for testing or release (split per ABI for smaller size)
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      # Step 16: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
+      # Step 17: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
       - name: Build iOS App
         if: ${{ env.BUILD_IOS == 'true' }}
         run: flutter build ios --no-codesign
