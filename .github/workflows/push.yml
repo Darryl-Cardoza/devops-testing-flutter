@@ -45,7 +45,7 @@ jobs:
       - name: Run Tests and Generate HTML Report
         run: |
           mkdir -p test-results/html
-          flutter pub run flutter_test_html_reporter \
+          flutter pub run reporter_html \
             --output-dir=test-results/html
 
       # Step 7: Upload test report as an artifact (you can download it from GitHub UI)

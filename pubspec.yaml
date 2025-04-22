@@ -49,7 +49,7 @@ dev_dependencies:
   junitreport: ^2.0.2
 
   #Convert Test reports to html
-  flutter_test_html_reporter: ^1.0.0
+  reporter_html: ^0.3.0
 
 flutter:
   uses-material-design: true
