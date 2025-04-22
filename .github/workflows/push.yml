@@ -42,11 +42,12 @@ jobs:
         run: flutter pub get
 
       # Step 6: Run unit tests and generate a machine-readable report
-      - name: Run Tests and Generate HTML Report
+      - name: Run Flutter Tests and Generate HTML Report
         run: |
           mkdir -p test-results/html
           flutter pub run reporter_html \
-            --output-dir=test-results/html
+            --output test-results/html \
+            --title "Flutter Unit Test Report"
 
       # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
       - name: Upload HTML Test Report
