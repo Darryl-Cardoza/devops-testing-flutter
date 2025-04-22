@@ -3,7 +3,7 @@ name: "Test and Build Flutter App"
 # Trigger this workflow on push or pull request to main/master branches
 on:
   push:
-    branches: [ main, master ]
+    branches: ['**']
   pull_request:
     branches: [ main, master ]
 
@@ -42,18 +42,18 @@ jobs:
         run: flutter pub get
 
       # Step 6: Run unit tests and generate a machine-readable report
-      - name: Run Tests and Generate Report
+      - name: Run Tests and Generate HTML Report
         run: |
-          mkdir -p test-results
-          flutter test --machine > test-results/results.json
-          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml
+          mkdir -p test-results/html
+          flutter pub run flutter_test_html_reporter \
+            --output-dir=test-results/html
 
       # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
-      - name: Upload Test Report
+      - name: Upload HTML Test Report
         uses: actions/upload-artifact@v4
         with:
-          name: Flutter-Test-Report
-          path: test-results/test-report.xml
+          name: Flutter-Test-HTML-Report
+          path: test-results/html/
 
       # Step 8: Run Tests with Coverage
       - name: Run Flutter Tests with Coverage
