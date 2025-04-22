@@ -48,19 +48,19 @@ jobs:
           flutter test --machine > test-results/results.json
           cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml
 
-      # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
-      - name: Upload Test Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Flutter-Test-Report
-          path: test-results/test-report.xml
-
       - name: Convert JUnit XML to HTML
         uses: pl-strflt/junit-xml-to-html@v1
         with:
           mode: 'no-frames'
           input: 'test-results/test-report.xml'
           output: 'test-results/test-report.html'
+
+      # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Flutter-Test-Report
+          path: test-results/test-report.html
 
       # Step 8: Run Tests with Coverage
       - name: Run Flutter Tests with Coverage

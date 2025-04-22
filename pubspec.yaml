@@ -48,9 +48,6 @@ dev_dependencies:
   flutter_lints: ^1.0.0
   junitreport: ^2.0.2
 
-  #Convert Test reports to html
-  reporter_html: ^0.3.0
-
 flutter:
   uses-material-design: true
   assets:
