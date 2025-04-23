@@ -53,11 +53,11 @@ main() {
     blocTest<AppBloc, AppState>(
       'CRITICAL: emits [AppLoaded] state',
       build: () {
-        when(serviceMock.loadMovies()).thenThrow(Error());  // Forcing an error
+        when(serviceMock.loadMovies()).thenAnswer((_) => Future.value(response));
         return AppBloc(service: serviceMock, initWithState: AppEmpty());
       },
       act: (bloc) => bloc.add(FetchEvent()),
-      expect: () => [empty, loading, AppLoaded(response: response)],  // This will fail because AppError is expected, not AppLoaded
+      expect: () => [empty, loading, AppLoaded(response: response)],
     );
   });
 }

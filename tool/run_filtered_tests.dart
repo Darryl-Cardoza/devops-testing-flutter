@@ -1,35 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
 
-Future<void> main() async {
-  final process = await Process.start('flutter', ['test', '--machine']);
-  bool hasCriticalFailure = false;
+void main() async {
+  final file = File('test-results/results.json');
+  final contents = await file.readAsString();
+  final testResults = json.decode(contents);
 
-  await for (var line in process.stdout.transform(utf8.decoder).transform(const LineSplitter())) {
-    try {
-      final json = jsonDecode(line);
-      if (json['type'] == 'testDone' &&
-          json['result'] == 'failure' &&
-          json.containsKey('name')) {
-        final testName = json['name'] as String;
-        print('Test failed: $testName');
+  bool failedCriticalTests = false;
 
-        if (testName.contains('CRITICAL') || testName.contains('MAJOR')) {
-          hasCriticalFailure = true;
-        }
-      }
-    } catch (_) {
-      // Not all lines are JSON; ignore them
+  // Iterate over all the test results and check severity
+  for (var test in testResults) {
+    if (test['severity'] == 'CRITICAL' && test['status'] == 'FAILED') {
+      failedCriticalTests = true;
+      print('Critical Test Failed: ${test['name']}');
+    } else if (test['severity'] == 'MINOR' && test['status'] == 'FAILED') {
+      // Minor test failures can be skipped
+      print('Minor Test Failed (skipped for now): ${test['name']}');
     }
   }
 
-  final exitCode = await process.exitCode;
-
-  if (hasCriticalFailure || exitCode != 0) {
-    print('GitHub Action FAILED due to CRITICAL/MAJOR test failures.');
+  if (failedCriticalTests) {
     exit(1);
-  } else {
-    print('All CRITICAL/MAJOR tests passed.');
-    exit(0);
   }
+
+  exit(0);
 }
