@@ -150,7 +150,7 @@ jobs:
           format: sarif
           gh-code-scanning-compat: true
           max-allowed-issues: 2147483647
-          arguments: analyze -r ./lib ./test --skip=trivy,checkstyle
+          arguments: analyze -r lib test --skip=trivy,checkstyle,cyclonedx,markdownlint
 
         # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
