@@ -43,12 +43,9 @@ jobs:
 
       - name: Run Tests, Generate Report, and Run Severity-Filtered Tests
         run: |
-        # Run the tests and generate results in machine-readable format
           mkdir -p test-results
           flutter test --machine > test-results/results.json
           cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml
-          
-        # Run the severity filter to decide if the build should pass or fail
           dart run tool/run_filtered_tests.dart
 
       # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
