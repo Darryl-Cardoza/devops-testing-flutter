@@ -26,7 +26,7 @@ void main() {
   });
 
   group('Display Home', () {
-    testWidgets('state: AppLoading', (WidgetTester tester) async {
+    testWidgets('CRITICAL: state: AppLoading', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -45,7 +45,7 @@ void main() {
       expect(textFinder, findsOneWidget);
     });
 
-    testWidgets('state: AppLoaded', (WidgetTester tester) async {
+    testWidgets('CRITICAL: state: AppLoaded', (WidgetTester tester) async {
       mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MaterialApp(
@@ -66,7 +66,7 @@ void main() {
       });
     });
 
-    testWidgets('state: AppError', (WidgetTester tester) async {
+    testWidgets('MINOR: state: AppError', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -85,7 +85,7 @@ void main() {
       expect(textFinder, findsOneWidget);
     });
 
-    testWidgets('state: unknow', (WidgetTester tester) async {
+    testWidgets('MINOR: state: unknown', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

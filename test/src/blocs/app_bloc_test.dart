@@ -27,7 +27,7 @@ main() {
     appBloc.close();
   });
 
-  test('App close does not emit new app state', () async {
+  test('CRITICAL: App close does not emit new app state', () async {
     appBloc.close();
     await expectLater(
       appBloc.stream,
@@ -35,13 +35,13 @@ main() {
     );
   });
 
-  test('AppEmpty is initialState', () {
+  test('MINOR: AppEmpty is initialState', () {
     expect(appBloc.initWithState, empty);
   });
 
   group('Bloc AppState', () {
     blocTest<AppBloc, AppState>(
-      'emits [AppError] state',
+      'CRITICAL: emits [AppError] state',
       build: () {
         when(serviceMock.loadMovies()).thenThrow(Error);
         return AppBloc(service: serviceMock, initWithState: AppEmpty());
@@ -51,7 +51,7 @@ main() {
     );
 
     blocTest<AppBloc, AppState>(
-      'emits [AppLoaded] state',
+      'CRITICAL: emits [AppLoaded] state',
       build: () {
         when(serviceMock.loadMovies()).thenAnswer((_) => Future.value(response));
         return AppBloc(service: serviceMock, initWithState: AppEmpty());

@@ -13,7 +13,7 @@ void main() {
     exampleResponse = MoviesResponse.fromJson(exampleJsonResponse2);
   });
 
-  testWidgets('Display Movies List', (WidgetTester tester) async {
+  testWidgets('MINOR: Display Movies List', (WidgetTester tester) async {
     mockNetworkImagesFor(() async {
       await tester.pumpWidget(
         MaterialApp(

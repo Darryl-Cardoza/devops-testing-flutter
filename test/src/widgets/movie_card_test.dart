@@ -15,7 +15,7 @@ void main() {
     movie = exampleResponse.movies.first;
   });
 
-  testWidgets('Display Movie Card', (WidgetTester tester) async {
+  testWidgets('MINOR: Display Movie Card', (WidgetTester tester) async {
     mockNetworkImagesFor(() async {
       await tester.pumpWidget(
         MaterialApp(

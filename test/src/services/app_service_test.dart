@@ -10,7 +10,7 @@ import '../common.dart';
 
 main() {
   group('loadMovies', () {
-    test('status == 200', () async {
+    test('CRITICAL: status == 200', () async {
       final mockClient = MockClient((request) async {
         return Response(json.encode(exampleJsonResponse), 200);
       });
@@ -20,7 +20,7 @@ main() {
       expect(actualResponse, equals(expectedResponse));
     });
 
-    test('status != 200', () async {
+    test('CRITICAL: status != 200', () async {
       final mockClient = MockClient((request) async {
         return Response(json.encode(exampleJsonResponse), 500);
       });
