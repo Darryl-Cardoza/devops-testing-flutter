@@ -1,6 +1,6 @@
 name: "Test and Build Flutter App"
 
-# Trigger this workflow on push or pull request to main/master branches
+# Trigger the workflow on any push or PR to main/master
 on:
   push:
     branches: ["**"]
@@ -10,49 +10,50 @@ on:
 jobs:
   build:
     name: Test and Build
-    runs-on: ubuntu-latest  # The job runs on the latest Ubuntu virtual machine
+    runs-on: ubuntu-latest  # Run the job on the latest Ubuntu VM
 
     steps:
-      # Step 1: Checkout the project repository
+      # Step 1: Checkout the project code from the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Load environment variables from .github/env.sh
-      # This makes it easy to configure versions or flags without editing this file
+      # Step 2: Load environment variables from a script for centralized config
       - name: Load Environment Variables
         run: |
           source .github/env.sh
 
-      # Step 3: Set up Java (required by Flutter and some build tools)
+      # Step 3: Set up Java, needed for Flutter and Android builds
       - name: Set Up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'  # Temurin is a fast, open-source JDK distribution
+          distribution: 'temurin'
           java-version: 17
 
-      # Step 4: Set up Flutter SDK
+      # Step 4: Set up Flutter SDK using variables from env.sh
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ vars.FLUTTER_VERSION }}
           channel: ${{ vars.FLUTTER_CHANNEL }}
 
-      # Step 5: Install Dart/Flutter dependencies
+      # Step 5: Install all project dependencies
       - name: Install Dependencies
         run: flutter pub get
 
+      # Step 6: Run Flutter tests with coverage and output in machine-readable JSON
       - name: Run Flutter Tests with Coverage and Machine Output
         run: |
           mkdir -p test-results
           flutter test --coverage --machine > test-results/results.json || true
           cat test-results/results.json 
 
-      # Step 3: Convert Flutter test results to JUnit format
+      # Step 7: Convert test results to JUnit XML for easier reporting
       - name: Convert to JUnit format
         run: |
           cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
           cat test-results/test-report.xml  
 
+      # Step 8: Convert JUnit XML to HTML for human-readable test report
       - name: Convert JUnit XML to HTML
         uses: pl-strflt/junit-xml-to-html@v1
         with:
@@ -60,26 +61,26 @@ jobs:
           input: 'test-results/test-report.xml'
           output: 'test-results/test-report.html'
 
-      # Step 4: Analyze test results and allow minor failures
+      # Step 9: Run custom test result filter (optional tool to allow some test failures)
       - name: Analyze Test Results and Allow Minor Failures
         run: dart run tool/run_filtered_tests.dart
 
-      # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
+      # Step 10: Upload test report for review in the GitHub UI
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Test-Report
           path: test-results/test-report.html
 
-      # Step 8: Run Tests with Coverage
+      # Step 11: Run tests again (if needed) with coverage
       - name: Run Flutter Tests with Coverage
         run: flutter test --coverage --machine > test-results/results.json || true
 
-      # Step 9: Install LCOV (HTML report generator)
+      # Step 12: Install LCOV for generating HTML coverage reports
       - name: Install LCOV
         run: sudo apt-get install -y lcov
 
-      # Step 10: Generate Beautiful HTML Coverage Report
+      # Step 13: Generate HTML report from LCOV coverage data
       - name: Generate HTML Coverage Report
         run: |
           mkdir -p coverage_report
@@ -90,15 +91,14 @@ jobs:
             --highlight \
             --legend
 
-      # Step 11: Upload HTML Coverage Report as Artifact
+      # Step 14: Upload the HTML coverage report to GitHub
       - name: Upload HTML Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Coverage-Report
           path: coverage_report/
 
-
-      # Step 12: Check if code coverage meets the threshold defined in env.sh
+      # Step 15: Check if coverage meets the required threshold
       - name: Check Coverage Threshold
         run: |
           total_coverage=$(lcov --summary coverage/lcov.info | grep -Po 'lines\.*: \K[0-9.]+(?=%)')
@@ -111,13 +111,13 @@ jobs:
             echo "Code coverage ($total_coverage%) meets the threshold." 
           fi
 
-      # Step 13: Debug LCOV output (optional, can be removed in production)
+      # Step 16: Optional debug info for LCOV output (useful for troubleshooting)
       - name: Debug LCOV Output
         run: |
           ls -la coverage
           head coverage/lcov.info
 
-      # Step 14: Check if code coverage report is available or not
+      # Step 17: Ensure coverage report was actually created
       - name: Ensure Coverage Report is Ready
         run: |
           if [ ! -f coverage/lcov.info ]; then
@@ -125,14 +125,14 @@ jobs:
             exit 1
           fi
 
+      # Step 18: Confirm LCOV file is not empty
       - name: Confirm lcov.info is populated
         run: |
           echo "Preview of lcov.info:"
           head -n 20 coverage/lcov.info
           echo "Size: $(du -h coverage/lcov.info)"
 
-
-      # Step 15: Run SonarQube scan for code coverage analysis
+      # Step 19: Run SonarQube analysis for static code analysis and coverage
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
@@ -140,29 +140,28 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Step 16: Run Codacy scan for code security analysis
-      - name: Run Codacy Analysis CLI
-        uses: codacy/codacy-analysis-cli-action@master
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        with:
-          output: results.sarif
-          format: sarif
-          gh-code-scanning-compat: true
-          max-allowed-issues: 2147483647
-          arguments: analyze -r lib test --skip=trivy,checkstyle,cyclonedx,markdownlint
+      # Step 20: Optionally run Codacy for security analysis (commented out for now)
+      #      - name: Run Codacy Analysis CLI
+      #        uses: codacy/codacy-analysis-cli-action@master
+      #        env:
+      #          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      #        with:
+      #          output: results.sarif
+      #          format: sarif
+      #          gh-code-scanning-compat: true
+      #          max-allowed-issues: 2147483647
+      #          arguments: analyze -r lib test --skip=trivy,checkstyle,cyclonedx,markdownlint
+      #
+      #      - name: Upload SARIF results file
+      #        uses: github/codeql-action/upload-sarif@main
+      #        with:
+      #          sarif_file: results.sarif
 
-        # Upload the SARIF file generated in the previous step
-      - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@main
-        with:
-          sarif_file: results.sarif
-
-      # Step 17: Build Android APK for testing or release (split per ABI for smaller size)
+      # Step 21: Build Android APK with ABI splits (for smaller binaries)
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      # Step 18: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
+      # Step 22: Conditionally build iOS app (only on macOS runners if enabled in env)
       - name: Build iOS App
         if: ${{ vars.BUILD_IOS == 'true' }}
         run: flutter build ios --no-codesign
