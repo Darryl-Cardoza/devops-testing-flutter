@@ -34,8 +34,8 @@ jobs:
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: ${{ env.FLUTTER_CHANNEL }}
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: ${{ vars.FLUTTER_CHANNEL }}
 
       # Step 5: Install Dart/Flutter dependencies
       - name: Install Dependencies
@@ -154,5 +154,5 @@ jobs:
 
       # Step 18: Optional iOS build (only runs if BUILD_IOS=true in env.sh, and only works on macOS)
       - name: Build iOS App
-        if: ${{ env.BUILD_IOS == 'true' }}
+        if: ${{ vars.BUILD_IOS == 'true' }}
         run: flutter build ios --no-codesign
