@@ -140,17 +140,17 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Step 16: Run Snyk scan for code quality analysis
+      # Step 16: Run Codacy scan for code security analysis
       - name: Run Codacy Analysis CLI
         uses: codacy/codacy-analysis-cli-action@master
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         with:
           output: results.sarif
           format: sarif
-          # Adjust severity of non-security issues
           gh-code-scanning-compat: true
-          # Force 0 exit code to allow SARIF file generation
-          # This will hand over control about PR rejection to the GitHub side
           max-allowed-issues: 2147483647
+          arguments: analyze -r ./lib ./test --skip=trivy,checkstyle
 
         # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
