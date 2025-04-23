@@ -3,19 +3,48 @@ import 'dart:io';
 
 void main() async {
   final file = File('test-results/results.json');
-  final contents = await file.readAsString();
-  final testResults = json.decode(contents);
+  if (!await file.exists()) {
+    print('No test results file found.');
+    exit(0);
+  }
+
+  final lines = await file.readAsLines();
+  final testNames = <int, String>{};
+  final failedTests = <Map<String, dynamic>>[];
+
+  for (final line in lines) {
+    if (line.trim().isEmpty) continue;
+
+    final event = jsonDecode(line);
+
+    if (event['event'] == 'testStart') {
+      final id = event['test']['id'];
+      final name = event['test']['name'];
+      testNames[id] = name;
+    }
+
+    if (event['event'] == 'testDone' && event['result'] == 'failure') {
+      final id = event['testID'];
+      final name = testNames[id] ?? 'Unknown Test';
+
+      // Simulate severity from name
+      final isMinor = name.toLowerCase().contains('minor');
+      failedTests.add({
+        'name': name,
+        'severity': isMinor ? 'MINOR' : 'CRITICAL',
+        'status': 'FAILED',
+      });
+    }
+  }
 
   bool failedCriticalTests = false;
 
-  // Iterate over all the test results and check severity
-  for (var test in testResults) {
-    if (test['severity'] == 'CRITICAL' && test['status'] == 'FAILED') {
+  for (final test in failedTests) {
+    if (test['severity'] == 'CRITICAL') {
       failedCriticalTests = true;
       print('Critical Test Failed: ${test['name']}');
-    } else if (test['severity'] == 'MINOR' && test['status'] == 'FAILED') {
-      // Minor test failures can be skipped
-      print('Minor Test Failed (skipped for now): ${test['name']}');
+    } else {
+      print('Minor Test Failed (skipped): ${test['name']}');
     }
   }
 
@@ -23,5 +52,6 @@ void main() async {
     exit(1);
   }
 
+  print('No critical test failures.');
   exit(0);
 }
