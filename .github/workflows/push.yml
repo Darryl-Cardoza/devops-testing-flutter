@@ -140,7 +140,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Step 20: Optionally run Codacy for security analysis (commented out for now)
+      # Step 20: Optionally run Codacy for security analysis
       - name: Run Codacy Analysis CLI
         uses: codacy/codacy-analysis-cli-action@master
         env:
@@ -150,7 +150,7 @@ jobs:
           format: sarif
           gh-code-scanning-compat: true
           max-allowed-issues: 2147483647
-          arguments: analyze -r lib test --skip=trivy,checkstyle,cyclonedx,markdownlint
+          arguments: analyze -r lib test --tool-include=none
 
 #      - name: Upload SARIF results file
 #        uses: github/codeql-action/upload-sarif@main
