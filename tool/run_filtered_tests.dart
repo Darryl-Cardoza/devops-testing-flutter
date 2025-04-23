@@ -9,7 +9,7 @@ void main() async {
   }
 
   final lines = await file.readAsLines();
-  final testNames = <int, String>{};
+  final testNames = <String, String>{};
   final failedTests = <Map<String, dynamic>>[];
 
   for (final line in lines) {
@@ -18,13 +18,13 @@ void main() async {
     final event = jsonDecode(line);
 
     if (event['event'] == 'testStart') {
-      final id = event['test']['id'];
+      final id = event['test']['id'].toString();
       final name = event['test']['name'];
       testNames[id] = name;
     }
 
     if (event['event'] == 'testDone' && event['result'] == 'failure') {
-      final id = event['testID'];
+      final id = event['testID'].toString();
       final name = testNames[id] ?? 'Unknown Test';
 
       // Simulate severity from name
