@@ -141,21 +141,21 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       # Step 20: Optionally run Codacy for security analysis (commented out for now)
-      #      - name: Run Codacy Analysis CLI
-      #        uses: codacy/codacy-analysis-cli-action@master
-      #        env:
-      #          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-      #        with:
-      #          output: results.sarif
-      #          format: sarif
-      #          gh-code-scanning-compat: true
-      #          max-allowed-issues: 2147483647
-      #          arguments: analyze -r lib test --skip=trivy,checkstyle,cyclonedx,markdownlint
-      #
-      #      - name: Upload SARIF results file
-      #        uses: github/codeql-action/upload-sarif@main
-      #        with:
-      #          sarif_file: results.sarif
+      - name: Run Codacy Analysis CLI
+        uses: codacy/codacy-analysis-cli-action@master
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        with:
+          output: results.sarif
+          format: sarif
+          gh-code-scanning-compat: true
+          max-allowed-issues: 2147483647
+          arguments: analyze -r lib test --skip=trivy,checkstyle,cyclonedx,markdownlint
+
+#      - name: Upload SARIF results file
+#        uses: github/codeql-action/upload-sarif@main
+#        with:
+#          sarif_file: results.sarif
 
       # Step 21: Build Android APK with ABI splits (for smaller binaries)
       - name: Build Debug APK
