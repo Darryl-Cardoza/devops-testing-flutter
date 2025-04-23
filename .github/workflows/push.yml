@@ -48,7 +48,7 @@ jobs:
           cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
 
       - name: Analyze test results and allow minor failures
-        run: dart run tool/check_test_results.dart
+        run: dart run tool/run_filtered_tests.dart
 
       # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
       - name: Upload Test Report
