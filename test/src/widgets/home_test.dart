@@ -81,7 +81,8 @@ void main() {
         ),
       );
 
-      Finder textFinder = find.text('Something went wrong!');
+      // Force this test to fail
+      Finder textFinder = find.text('This will fail!');
       expect(textFinder, findsOneWidget);
     });
 
