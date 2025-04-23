@@ -1,43 +1,30 @@
-import 'dart:convert';
 import 'dart:io';
+import 'package:xml/xml.dart';
 
 Future<void> main() async {
-  final process = await Process.start('flutter', ['test', '--machine']);
-  final testNames = <String, String>{}; // testID -> name
-  bool hasCriticalFailure = false;
+  final xmlFile = File('test-results/test-report.xml');
 
-  await for (var line in process.stdout
-      .transform(utf8.decoder)
-      .transform(const LineSplitter())) {
-    try {
-      final event = jsonDecode(line);
-
-      // Store test names by ID
-      if (event['event'] == 'testStart') {
-        final testId = event['test']['id'].toString();
-        final testName = event['test']['name'];
-        testNames[testId] = testName;
-      }
-
-      // Detect failures and classify them
-      if (event['event'] == 'testDone' && event['result'] == 'failure') {
-        final testId = event['testID'].toString();
-        final testName = testNames[testId] ?? 'Unknown Test';
-
-        print('Test failed: $testName');
-
-        if (testName.contains('CRITICAL') || testName.contains('MAJOR')) {
-          hasCriticalFailure = true;
-        } else {
-          print('⚠Minor test failed (ignored): $testName');
-        }
-      }
-    } catch (_) {
-      // Ignore non-JSON lines
-    }
+  if (!xmlFile.existsSync()) {
+    print('Test report not found.');
+    exit(1);
   }
 
-  final exitCode = await process.exitCode;
+  final document = XmlDocument.parse(await xmlFile.readAsString());
+  final failedTests = document.findAllElements('testcase')
+      .where((testcase) => testcase.findElements('failure').isNotEmpty || testcase.findElements('error').isNotEmpty);
+
+  bool hasCriticalFailure = false;
+
+  for (final test in failedTests) {
+    final name = test.getAttribute('name') ?? '';
+
+    if (name.contains('CRITICAL') || name.contains('MAJOR')) {
+      hasCriticalFailure = true;
+      print('Critical test failed: $name');
+    } else {
+      print('Minor test failed (ignored): $name');
+    }
+  }
 
   if (hasCriticalFailure) {
     print('GitHub Action FAILED due to CRITICAL/MAJOR test failures.');

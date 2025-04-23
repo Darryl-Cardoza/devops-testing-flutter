@@ -45,13 +45,13 @@ jobs:
         run: |
           mkdir -p test-results
           flutter test --coverage --machine > test-results/results.json || true
-          cat test-results/results.json  # Debugging: Output test results
+          cat test-results/results.json 
 
       # Step 3: Convert Flutter test results to JUnit format
       - name: Convert to JUnit format
         run: |
           cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
-          cat test-results/test-report.xml  # Debugging: Output JUnit test report
+          cat test-results/test-report.xml  
 
       - name: Convert JUnit XML to HTML
         uses: pl-strflt/junit-xml-to-html@v1
