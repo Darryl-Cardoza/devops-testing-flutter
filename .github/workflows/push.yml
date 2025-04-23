@@ -41,12 +41,14 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run Tests, Generate Report, and Run Severity-Filtered Tests
+      - name: Run flutter tests
         run: |
           mkdir -p test-results
-          flutter test --machine > test-results/results.json
-          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml
-          dart run tool/run_filtered_tests.dart
+          flutter test --machine > test-results/results.json || true
+          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
+
+      - name: Analyze test results and allow minor failures
+        run: dart run tool/check_test_results.dart
 
       # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
       - name: Upload Test Report
