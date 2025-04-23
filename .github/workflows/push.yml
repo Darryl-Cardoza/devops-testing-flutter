@@ -41,13 +41,20 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run flutter tests
+      - name: Run Flutter Tests with Coverage and Machine Output
         run: |
           mkdir -p test-results
-          flutter test --machine > test-results/results.json || true
-          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
+          flutter test --coverage --machine > test-results/results.json || true
+          cat test-results/results.json  # Debugging: Output test results
 
-      - name: Analyze test results and allow minor failures
+      # Step 3: Convert Flutter test results to JUnit format
+      - name: Convert to JUnit format
+        run: |
+          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
+          cat test-results/test-report.xml  # Debugging: Output JUnit test report
+
+      # Step 4: Analyze test results and allow minor failures
+      - name: Analyze Test Results and Allow Minor Failures
         run: dart run tool/run_filtered_tests.dart
 
       # Step 7: Upload test report as an artifact (you can download it from GitHub UI)
