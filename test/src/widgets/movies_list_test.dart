@@ -32,7 +32,7 @@ void main() {
       movieFinder = find.byKey(Key("1"));
       expect(movieFinder, findsOneWidget);
 
-      movieFinder = find.byKey(Key("2"));
+      movieFinder = find.byKey(Key("999"));
       expect(movieFinder, findsOneWidget);
     });
   });
