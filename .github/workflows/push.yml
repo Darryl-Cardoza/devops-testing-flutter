@@ -140,28 +140,11 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Step 20: Optionally run Codacy for security analysis
-      - name: Run Codacy Analysis CLI
-        uses: codacy/codacy-analysis-cli-action@master
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        with:
-          output: results.sarif
-          format: sarif
-          gh-code-scanning-compat: true
-          max-allowed-issues: 2147483647
-          arguments: analyze -r lib test --tool-include=none
-
-#      - name: Upload SARIF results file
-#        uses: github/codeql-action/upload-sarif@main
-#        with:
-#          sarif_file: results.sarif
-
-      # Step 21: Build Android APK with ABI splits (for smaller binaries)
+      # Step 20: Build Android APK with ABI splits (for smaller binaries)
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      # Step 22: Conditionally build iOS app (only on macOS runners if enabled in env)
+      # Step 21: Conditionally build iOS app (only on macOS runners if enabled in env)
       - name: Build iOS App
         if: ${{ vars.BUILD_IOS == 'true' }}
         run: flutter build ios --no-codesign
