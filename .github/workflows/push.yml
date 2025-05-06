@@ -146,14 +146,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run Codacy ESLint Analysis
-        uses: codacy/codacy-cli-v2-action@main
-        with:
-          project_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          tool: eslint
-          upload_report: true
+      - name: Set up Codacy CLI
+        run: |
+          curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh \
+            -o /tmp/codacy-cli-v2 && chmod +x /tmp/codacy-cli-v2
 
-      - name: Generate HTML Report (Optional)
+      - name: Initialize Codacy CLI
+        run: |
+          /tmp/codacy-cli-v2 init  # This step will generate the .codacy.yaml file
+
+      - name: Run Codacy CLI
+        run: |
+          /tmp/codacy-cli-v2 analyze \
+            --tool dartanalyzer \
+            --format sarif \
+            --output report.sarif
+
+      - name: Upload Results to Codacy
         run: |
           codacy-analysis-cli analyze \
             --project-token ${{ secrets.CODACY_PROJECT_TOKEN }} \
