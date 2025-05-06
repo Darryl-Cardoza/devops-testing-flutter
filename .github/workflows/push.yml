@@ -153,33 +153,22 @@ jobs:
 
       - name: Initialize Codacy CLI
         run: |
-          /tmp/codacy-cli-v2 init  # This step will generate the .codacy.yaml file
+          /tmp/codacy-cli-v2 init  # This generates the .codacy.yaml file
 
-      - name: Run Codacy CLI
+      - name: Run Codacy CLI Analysis
         run: |
           /tmp/codacy-cli-v2 analyze \
             --tool dartanalyzer \
             --format sarif \
-            --output report.sarif
+            --output ./results.sarif  # Specify output path
 
       - name: Upload Results to Codacy
         run: |
-          codacy-analysis-cli analyze \
-            --project-token ${{ secrets.CODACY_PROJECT_TOKEN }} \
-            --output results.html \
-            --format html || echo "HTML format not supported"
-
-      - name: Upload SARIF if exists
-        run: |
-          if [ -f results.sarif ]; then
-            echo "Uploading SARIF..."
-            gh code-scanning upload-results --sarif=results.sarif --tool=codacy
+          if [ -f ./results.sarif ]; then
+            /tmp/codacy-cli-v2 upload \
+              --sarif-path ./results.sarif \
+              --commit-uuid ${{ github.sha }} \
+              --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
           else
             echo "No SARIF file found, skipping upload"
-          fi 
-
-      - name: Upload HTML Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Codacy-HTML-Report
-          path: results.html
+          fi
