@@ -173,13 +173,11 @@ jobs:
             echo "No SARIF file found, skipping upload"
           fi
 
-      - name: Upload LCOV Coverage to Codacy
+      - name: Upload Coverage to Codacy (Legacy Reporter)
         run: |
-          if [ -f coverage/lcov.info ]; then
-            /tmp/codacy-cli-v2 upload-coverage \
-              --coverage-path coverage/lcov.info \
-              --commit-uuid ${{ github.sha }} \
-              --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
-          else
-            echo "No LCOV coverage file found, skipping upload"
-          fi
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
+            --language Dart \
+            --coverage-reports coverage/lcov.info \
+            --commit-uuid ${{ github.sha }} \
+            --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
+      
