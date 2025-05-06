@@ -146,30 +146,62 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run Codacy CLI
-        uses: codacy/codacy-cli-v2-action@main
+      - name: Set up Codacy CLI V2
+        run: |
+          echo "Setting up CLI V2"
+          curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o /tmp/codacy-cli-v2
+          chmod +x /tmp/codacy-cli-v2
+          /tmp/codacy-cli-v2 install
+          echo "CLI V2 setup complete"
+
+      - name: Initialize Codacy CLI
+        run: |
+          /tmp/codacy-cli-v2 init \
+            --tool dartanalyzer \
+            --language dart \
+            --project-name devops-testing-flutter
+
+      - name: Run Codacy Analysis
+        run: |
+          /tmp/codacy-cli-v2 analyze -t dartanalyzer --format sarif -o report.sarif
+
+      - name: Upload SARIF if present
+        run: |
+          if [ -f report.sarif ]; then
+            sed -i.bak "s|$(pwd)/||g" report.sarif
+            sed -i.bak "s|file://||g" report.sarif
+            /tmp/codacy-cli-v2 upload \
+              -s report.sarif \
+              -c ${{ github.sha }} \
+              -a ${{ secrets.CODACY_PROJECT_TOKEN }} \
+              -p gh \
+              -o Darryl_Cardoza \
+              -r devops-testing-flutter
+          else
+            echo "SARIF report not found — skipping upload."
+          fi
+
+      - name: Upload SARIF to GitHub Code Scanning (if available)
+        if: ${{ files.exists('report.sarif') }}
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          api_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          tool: dartanalyzer
-          upload_report: true
-          provider: gh
-          owner: Darryl_Cardoza
-          repository: devops-testing-flutter
+          sarif_file: report.sarif
 
       - name: Generate HTML Report (Optional)
         run: |
-          codacy-analysis-cli analyze \
-            --project-token ${{ secrets.CODACY_PROJECT_TOKEN }} \
+          if /tmp/codacy-cli-v2 analyze \
+            -t dartanalyzer \
             --output results.html \
-            --format html || echo "HTML format not supported"
+            --format html; then
+            echo "HTML report generated"
+          else
+            echo "HTML format not supported"
+          fi
 
-      - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
-
-      - name: Upload HTML Report
+      - name: Upload HTML Report (if available)
+        if: ${{ files.exists('results.html') }}
         uses: actions/upload-artifact@v4
         with:
           name: Codacy-HTML-Report
           path: results.html
+
