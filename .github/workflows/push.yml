@@ -145,3 +145,5 @@ jobs:
               --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
           else
             echo "No SARIF file found, skipping upload"
+          fi
+      
