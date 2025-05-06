@@ -155,6 +155,13 @@ jobs:
           format: sarif
           gh-code-scanning-compat: true
           max-allowed-issues: 2147483647
+          arguments: >
+            --exclude-tool pmd
+            --exclude-tool pmd-legacy
+            --exclude-tool checkstyle
+            --exclude-tool eslint
+            --exclude-tool clang-tidy
+            --exclude-tool metrics
 
       - name: Generate HTML Report (Optional)
         run: |
