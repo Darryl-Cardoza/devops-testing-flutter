@@ -1,0 +1,16 @@
+name: Setup Flutter
+
+description: Common Flutter setup (SDK + pub get)
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set Up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: ${{ env.FLUTTER_CHANNEL }}
+
+    - name: Install Dependencies
+      run: flutter pub get
+      shell: bash

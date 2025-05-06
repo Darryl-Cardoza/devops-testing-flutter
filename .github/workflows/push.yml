@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main, master]
 
+env:
+  FLUTTER_VERSION: ${{ vars.FLUTTER_VERSION }}
+  FLUTTER_CHANNEL: ${{ vars.FLUTTER_CHANNEL }}
+
 jobs:
   coverage:
     name: Generate Coverage
@@ -16,18 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Load Environment Variables
-        run: |
-          source .github/env.sh
-
-      - name: Cache Flutter Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+        run: source .github/env.sh
 
       - name: Set Up Java
         uses: actions/setup-java@v4
@@ -35,14 +28,8 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Set Up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ vars.FLUTTER_VERSION }}
-          channel: ${{ vars.FLUTTER_CHANNEL }}
-
-      - name: Install Dependencies
-        run: flutter pub get
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
 
       - name: Run Flutter Tests with Coverage
         run: flutter test --coverage --machine > test-results/results.json || true
@@ -84,18 +71,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Load Environment Variables
-        run: |
-          source .github/env.sh
-
-      - name: Cache Flutter Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+        run: source .github/env.sh
 
       - name: Set Up Java
         uses: actions/setup-java@v4
@@ -103,14 +79,8 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-#      - name: Set Up Flutter
-#        uses: subosito/flutter-action@v2
-#        with:
-#          flutter-version: ${{ vars.FLUTTER_VERSION }}
-#          channel: ${{ vars.FLUTTER_CHANNEL }}
-
-      - name: Install Dependencies
-        run: flutter pub get
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
 
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
@@ -148,21 +118,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Cache Flutter Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Set Up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ vars.FLUTTER_VERSION }}
-          channel: ${{ vars.FLUTTER_CHANNEL }}
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
 
       - name: Set up Codacy CLI
         run: |
@@ -170,8 +127,7 @@ jobs:
             -o /tmp/codacy-cli-v2 && chmod +x /tmp/codacy-cli-v2
 
       - name: Initialize Codacy CLI
-        run: |
-          /tmp/codacy-cli-v2 init
+        run: /tmp/codacy-cli-v2 init
 
       - name: Run Codacy CLI Analysis
         run: |
@@ -189,4 +145,3 @@ jobs:
               --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
           else
             echo "No SARIF file found, skipping upload"
-          fi
