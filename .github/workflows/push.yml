@@ -31,6 +31,33 @@ jobs:
       - name: Setup Flutter
         uses: ./.github/actions/setup-flutter
 
+      - name: Run Flutter Tests with Coverage and Machine Output
+        run: |
+          mkdir -p test-results
+          flutter test --coverage --machine > test-results/results.json || true
+          cat test-results/results.json
+
+      - name: Convert to JUnit format
+        run: |
+          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
+          cat test-results/test-report.xml  
+
+      - name: Convert JUnit XML to HTML
+        uses: pl-strflt/junit-xml-to-html@v1
+        with:
+          mode: 'no-frames'
+          input: 'test-results/test-report.xml'
+          output: 'test-results/test-report.html'
+
+      - name: Analyze Test Results and Allow Minor Failures
+        run: dart run tool/run_filtered_tests.dart
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Flutter-Test-Report
+          path: test-results/test-report.html
+
       - name: Run Flutter Tests with Coverage
         run: flutter test --coverage --machine > test-results/results.json || true
 
@@ -52,6 +79,36 @@ jobs:
         with:
           name: Flutter-Coverage-Report
           path: coverage_report/
+
+      - name: Check Coverage Threshold
+        run: |
+          total_coverage=$(lcov --summary coverage/lcov.info | grep -Po 'lines\.*: \K[0-9.]+(?=%)')
+          echo "Total Coverage: $total_coverage%"
+          result=$(echo "$total_coverage < $COVERAGE_THRESHOLD" | bc -l)
+          if [ "$result" -eq 1 ]; then
+            echo "Code coverage ($total_coverage%) is below threshold ($COVERAGE_THRESHOLD%)."
+            exit 1 
+          else
+            echo "Code coverage ($total_coverage%) meets the threshold." 
+          fi
+
+      - name: Debug LCOV Output
+        run: |
+          ls -la coverage
+          head coverage/lcov.info
+
+      - name: Ensure Coverage Report is Ready
+        run: |
+          if [ ! -f coverage/lcov.info ]; then
+            echo "lcov.info not found! Did coverage generation fail?"
+            exit 1
+          fi
+
+      - name: Confirm lcov.info is Populated
+        run: |
+          echo "Preview of lcov.info:"
+          head -n 20 coverage/lcov.info
+          echo "Size: $(du -h coverage/lcov.info)"
 
       - name: Upload Coverage to Codacy
         run: |
