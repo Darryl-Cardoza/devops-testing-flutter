@@ -146,18 +146,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Initialize Codacy CLI V2
-        run: |
-          /tmp/codacy-cli-v2 init \
-            --tool dartanalyzer \
-            --language dart \
-            --project-name devops-testing-flutter
-
-      - name: Run Codacy Analysis
-        run: |
-          echo "Running the tool"
-          /tmp/codacy-cli-v2 analyze -t dartanalyzer --format sarif -o ./report.sarif
-          echo "Tool run complete"
+      - name: Run Codacy CLI
+        uses: codacy/codacy-cli-v2-action@main
+        with:
+          api_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          tool: dartanalyzer
+          upload_report: true
+          provider: gh
+          owner: Darryl_Cardoza
+          repository: devops-testing-flutter
 
       - name: Generate HTML Report (Optional)
         run: |
@@ -166,10 +163,14 @@ jobs:
             --output results.html \
             --format html || echo "HTML format not supported"
 
-      - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
+      - name: Upload SARIF if exists
+        run: |
+          if [ -f results.sarif ]; then
+            echo "Uploading SARIF..."
+            gh code-scanning upload-results --sarif=results.sarif --tool=codacy
+          else
+            echo "No SARIF file found, skipping upload"
+          fi 
 
       - name: Upload HTML Report
         uses: actions/upload-artifact@v4
