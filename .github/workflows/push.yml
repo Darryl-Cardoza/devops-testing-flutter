@@ -146,22 +146,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run Codacy Analysis CLI
-        uses: codacy/codacy-analysis-cli-action@d840f886c4bd4edc059706d09c6a1586111c540b
+      - name: Run Codacy CLI
+        uses: codacy/codacy-cli-v2-action@main
         with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          verbose: true
-          output: results.sarif
-          format: sarif
-          gh-code-scanning-compat: true
-          max-allowed-issues: 2147483647
-          arguments: >
-            --exclude-tool pmd
-            --exclude-tool pmd-legacy
-            --exclude-tool checkstyle
-            --exclude-tool eslint
-            --exclude-tool clang-tidy
-            --exclude-tool metrics
+          api_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          tool: dartanalyzer
+          upload_report: true
+          provider: gh
+          owner: Darryl_Cardoza
+          repository: devops-testing-flutter
 
       - name: Generate HTML Report (Optional)
         run: |
