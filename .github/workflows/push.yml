@@ -146,19 +146,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Initialize Codacy CLI
-        run: |
-          /tmp/codacy-cli-v2 init
-
-      - name: Run Codacy CLI
+      - name: Run Codacy ESLint Analysis
         uses: codacy/codacy-cli-v2-action@main
         with:
-          api_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          tool: dartanalyzer
+          project_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          tool: eslint
           upload_report: true
-          provider: gh
-          owner: Darryl_Cardoza
-          repository: devops-testing-flutter
 
       - name: Generate HTML Report (Optional)
         run: |
