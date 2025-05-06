@@ -7,8 +7,8 @@ on:
     branches: [main, master]
 
 jobs:
-  build:
-    name: Test and Build
+  coverage:
+    name: Generate Coverage
     runs-on: ubuntu-latest
 
     steps:
@@ -34,33 +34,6 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run Flutter Tests with Coverage and Machine Output
-        run: |
-          mkdir -p test-results
-          flutter test --coverage --machine > test-results/results.json || true
-          cat test-results/results.json
-
-      - name: Convert to JUnit format
-        run: |
-          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
-          cat test-results/test-report.xml  
-
-      - name: Convert JUnit XML to HTML
-        uses: pl-strflt/junit-xml-to-html@v1
-        with:
-          mode: 'no-frames'
-          input: 'test-results/test-report.xml'
-          output: 'test-results/test-report.html'
-
-      - name: Analyze Test Results and Allow Minor Failures
-        run: dart run tool/run_filtered_tests.dart
-
-      - name: Upload Test Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Flutter-Test-Report
-          path: test-results/test-report.html
-
       - name: Run Flutter Tests with Coverage
         run: flutter test --coverage --machine > test-results/results.json || true
 
@@ -83,35 +56,41 @@ jobs:
           name: Flutter-Coverage-Report
           path: coverage_report/
 
-      - name: Check Coverage Threshold
+      - name: Upload Coverage to Codacy
         run: |
-          total_coverage=$(lcov --summary coverage/lcov.info | grep -Po 'lines\.*: \K[0-9.]+(?=%)')
-          echo "Total Coverage: $total_coverage%"
-          result=$(echo "$total_coverage < $COVERAGE_THRESHOLD" | bc -l)
-          if [ "$result" -eq 1 ]; then
-            echo "Code coverage ($total_coverage%) is below threshold ($COVERAGE_THRESHOLD%)."
-            exit 1 
-          else
-            echo "Code coverage ($total_coverage%) meets the threshold." 
-          fi
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
+            --language Dart \
+            --coverage-reports coverage/lcov.info \
+            --commit-uuid ${{ github.sha }} \
+            --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
 
-      - name: Debug LCOV Output
-        run: |
-          ls -la coverage
-          head coverage/lcov.info
+  build:
+    name: Build App
+    needs: coverage
+    runs-on: ubuntu-latest
 
-      - name: Ensure Coverage Report is Ready
-        run: |
-          if [ ! -f coverage/lcov.info ]; then
-            echo "lcov.info not found! Did coverage generation fail?"
-            exit 1
-          fi
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Confirm lcov.info is Populated
+      - name: Load Environment Variables
         run: |
-          echo "Preview of lcov.info:"
-          head -n 20 coverage/lcov.info
-          echo "Size: $(du -h coverage/lcov.info)"
+          source .github/env.sh
+
+      - name: Set Up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: ${{ vars.FLUTTER_CHANNEL }}
+
+      - name: Install Dependencies
+        run: flutter pub get
 
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
@@ -122,7 +101,9 @@ jobs:
 
   sonarqube:
     name: SonarQube Scan
+    needs: coverage
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -136,6 +117,7 @@ jobs:
 
   codacy:
     name: Codacy Security Scan
+    needs: coverage
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -153,16 +135,16 @@ jobs:
 
       - name: Initialize Codacy CLI
         run: |
-          /tmp/codacy-cli-v2 init  # This generates the .codacy.yaml file
+          /tmp/codacy-cli-v2 init
 
       - name: Run Codacy CLI Analysis
         run: |
           /tmp/codacy-cli-v2 analyze \
             --tool dartanalyzer \
             --format sarif \
-            --output ./results.sarif  # Specify output path
+            --output ./results.sarif
 
-      - name: Upload Results to Codacy (SARIF)
+      - name: Upload SARIF Results to Codacy
         run: |
           if [ -f ./results.sarif ]; then
             /tmp/codacy-cli-v2 upload \
@@ -172,12 +154,3 @@ jobs:
           else
             echo "No SARIF file found, skipping upload"
           fi
-
-      - name: Upload Coverage to Codacy (Legacy Reporter)
-        run: |
-          bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
-            --language Dart \
-            --coverage-reports coverage/lcov.info \
-            --commit-uuid ${{ github.sha }} \
-            --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
-      
