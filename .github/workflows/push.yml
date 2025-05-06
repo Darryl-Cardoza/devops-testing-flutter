@@ -146,6 +146,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Initialize Codacy CLI
+        run: |
+          /tmp/codacy-cli-v2 init
+
       - name: Run Codacy CLI
         uses: codacy/codacy-cli-v2-action@main
         with:

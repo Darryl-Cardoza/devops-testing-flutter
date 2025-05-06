@@ -1,0 +1,14 @@
+engines:
+  dartanalyzer:
+    enabled: true
+
+exclude_paths:
+  - "test/**"         # Optional: exclude unit tests
+  - "**/*.g.dart"     # Optional: exclude generated files
+
+tools:
+  dartanalyzer:
+    enabled: true
+    config:
+      fatal-infos: false
+      fatal-warnings: true
