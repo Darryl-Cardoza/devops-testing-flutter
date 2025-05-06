@@ -162,7 +162,7 @@ jobs:
             --format sarif \
             --output ./results.sarif  # Specify output path
 
-      - name: Upload Results to Codacy
+      - name: Upload Results to Codacy (SARIF)
         run: |
           if [ -f ./results.sarif ]; then
             /tmp/codacy-cli-v2 upload \
@@ -171,4 +171,15 @@ jobs:
               --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
           else
             echo "No SARIF file found, skipping upload"
+          fi
+
+      - name: Upload LCOV Coverage to Codacy
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            /tmp/codacy-cli-v2 upload-coverage \
+              --coverage-path coverage/lcov.info \
+              --commit-uuid ${{ github.sha }} \
+              --project-token ${{ secrets.CODACY_PROJECT_TOKEN }}
+          else
+            echo "No LCOV coverage file found, skipping upload"
           fi
