@@ -19,6 +19,16 @@ jobs:
         run: |
           source .github/env.sh
 
+      - name: Cache Flutter Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
       - name: Set Up Java
         uses: actions/setup-java@v4
         with:
@@ -77,6 +87,16 @@ jobs:
         run: |
           source .github/env.sh
 
+      - name: Cache Flutter Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
       - name: Set Up Java
         uses: actions/setup-java@v4
         with:
@@ -127,6 +147,22 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Cache Flutter Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: ${{ vars.FLUTTER_CHANNEL }}
 
       - name: Set up Codacy CLI
         run: |
