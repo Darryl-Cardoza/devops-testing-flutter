@@ -213,8 +213,8 @@ jobs:
             -o /tmp/codacy-cli-v2 && chmod +x /tmp/codacy-cli-v2
 
       # Step 30: Initialize Codacy CLI for project configuration
-      - name: Initialize Codacy CLI
-        run: /tmp/codacy-cli-v2 init
+#      - name: Initialize Codacy CLI
+#        run: /tmp/codacy-cli-v2 init
 
       # Step 31: Run Dart static code analysis using Codacy CLI
       - name: Run Codacy CLI Analysis
