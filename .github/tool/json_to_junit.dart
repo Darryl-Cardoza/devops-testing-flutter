@@ -1,23 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:html_unescape/html_unescape.dart';
-
-final htmlEscape = const HtmlEscape();
 
 void main() async {
-  final inputLines = await stdin
-      .transform(utf8.decoder)
-      .transform(const LineSplitter())
-      .toList();
+  final input = await stdin.transform(utf8.decoder).join();
 
-  if (inputLines.isEmpty) {
+  if (input.trim().isEmpty) {
     stderr.writeln('Input is empty. No test results to convert.');
-    stdout.writeln('<?xml version="1.0" encoding="UTF-8"?><testsuites></testsuites>');
-    await stdout.flush();
+    print('<?xml version="1.0" encoding="UTF-8"?><testsuites></testsuites>');
     exit(0);
   }
 
-  final events = inputLines
+  final events = LineSplitter.split(input)
+      .where((line) => line.trim().isNotEmpty)
       .map((line) {
     try {
       return json.decode(line);
@@ -30,6 +24,7 @@ void main() async {
 
   final testMetadata = <int, Map>{}; // testID -> test metadata
   final testResults = <String, List<Map>>{}; // suiteID -> list of test results
+  final htmlEscape = HtmlEscape();
 
   for (var e in events) {
     switch (e['type']) {
@@ -49,9 +44,10 @@ void main() async {
       case 'error':
       case 'message':
         final id = e['testID'];
-        if (testMetadata.containsKey(id)) {
+        final meta = testMetadata[id];
+        if (meta != null) {
           final message = e['message'] ?? e['error'] ?? '';
-          testMetadata[id]['logs'].add(message.toString());
+          (meta['logs'] as List<String>).add(message.toString());
         }
         break;
 
@@ -69,7 +65,7 @@ void main() async {
             'name': meta['name'],
             'status': e['result'],
             'time': duration.toStringAsFixed(3),
-            'logs': meta['logs'].join('\n'),
+            'logs': (meta['logs'] as List<String>).join('\n'),
           });
         }
         break;
@@ -85,14 +81,11 @@ void main() async {
     for (var test in cases) {
       final testName = htmlEscape.convert(test['name']);
       final testTime = test['time'];
-      final status = htmlEscape.convert(test['status']);
-      final logs = test['logs'] ?? '';
-
       buffer.write('    <testcase name="$testName" time="$testTime">');
 
-      if (status != 'success') {
-        final escapedLogs = logs.replaceAll(']]>', ']]]]><![CDATA[>'); // Safe CDATA
-        buffer.writeln('<failure message="$status"><![CDATA[$escapedLogs]]></failure>');
+      if (test['status'] != 'success') {
+        final logs = htmlEscape.convert(test['logs'] ?? 'Test failed');
+        buffer.writeln('<failure message="${test['status']}"><![CDATA[$logs]]></failure>');
       }
 
       buffer.writeln('</testcase>');
@@ -101,7 +94,5 @@ void main() async {
   });
 
   buffer.writeln('</testsuites>');
-
-  stdout.writeln(buffer.toString());
-  await stdout.flush(); // Ensure all output is written before exiting
+  print(buffer.toString());
 }
