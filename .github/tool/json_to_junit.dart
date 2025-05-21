@@ -6,9 +6,8 @@ void main() async {
 
   if (input.trim().isEmpty) {
     stderr.writeln('Input is empty. No test results to convert.');
-    // Output a minimal valid JUnit XML so downstream tools don’t fail
     print('<?xml version="1.0" encoding="UTF-8"?><testsuites></testsuites>');
-    exit(0); // Gracefully exit
+    exit(0);
   }
 
   final events = LineSplitter.split(input)
@@ -23,17 +22,51 @@ void main() async {
       .whereType<Map>()
       .toList();
 
-  final testCases = <String, List<Map>>{};
+  final testMetadata = <int, Map>{}; // testID -> test metadata
+  final testResults = <String, List<Map>>{}; // suiteID -> list of test results
 
   for (var e in events) {
-    if (e['type'] == 'testDone') {
-      final name = e['name'] ?? 'unknown';
-      final status = e['result'] ?? 'unknown';
-      final suite = e['suite'] ?? 'default';
-      testCases.putIfAbsent(suite.toString(), () => []).add({
-        'name': name,
-        'status': status,
-      });
+    switch (e['type']) {
+      case 'testStart':
+        final test = e['test'];
+        if (test != null) {
+          testMetadata[test['id']] = {
+            'name': test['name'],
+            'suite': test['suiteID'],
+            'startTime': e['time'],
+            'logs': <String>[],
+          };
+        }
+        break;
+
+      case 'print':
+      case 'error':
+      case 'message':
+        final id = e['testID'];
+        if (testMetadata.containsKey(id)) {
+          final message = e['message'] ?? e['error'] ?? '';
+          testMetadata[id]['logs'].add(message.toString());
+        }
+        break;
+
+      case 'testDone':
+        final id = e['testID'];
+        final meta = testMetadata[id];
+        if (meta != null) {
+          final endTime = e['time'];
+          final duration = meta['startTime'] != null
+              ? (endTime - meta['startTime']) / 1000.0
+              : 0.0;
+
+          final suite = meta['suite'].toString();
+          testResults.putIfAbsent(suite, () => []).add({
+            'name': meta['name'],
+            'status': e['result'],
+            'time': duration.toStringAsFixed(3),
+            'logs': meta['logs'].join('\n'),
+          });
+        }
+        break;
     }
   }
 
@@ -41,13 +74,18 @@ void main() async {
   buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
   buffer.writeln('<testsuites>');
 
-  testCases.forEach((suite, cases) {
-    buffer.writeln('  <testsuite name="$suite" tests="${cases.length}">');
+  testResults.forEach((suite, cases) {
+    buffer.writeln('  <testsuite name="Suite $suite" tests="${cases.length}">');
     for (var test in cases) {
-      buffer.write('    <testcase name="${test['name']}">');
+      final testName = htmlEscape.convert(test['name']);
+      final testTime = test['time'];
+      buffer.write('    <testcase name="$testName" time="$testTime">');
+
       if (test['status'] != 'success') {
-        buffer.writeln('<failure message="${test['status']}"/>');
+        final logs = htmlEscape.convert(test['logs'] ?? 'Test failed');
+        buffer.writeln('<failure message="${test['status']}"><![CDATA[$logs]]></failure>');
       }
+
       buffer.writeln('</testcase>');
     }
     buffer.writeln('  </testsuite>');
