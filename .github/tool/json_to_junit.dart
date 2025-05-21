@@ -63,7 +63,7 @@ void main() async {
           final suite = meta['suite'].toString();
           testResults.putIfAbsent(suite, () => []).add({
             'name': meta['name'],
-            'status': e['result'],
+            'status': e['result'], // e.g. 'success', 'failure', etc.
             'time': duration.toStringAsFixed(3),
             'logs': (meta['logs'] as List<String>).join('\n'),
           });
@@ -77,7 +77,13 @@ void main() async {
   buffer.writeln('<testsuites>');
 
   testResults.forEach((suite, cases) {
-    buffer.writeln('  <testsuite name="Suite $suite" tests="${cases.length}">');
+    final totalTests = cases.length;
+    final failures = cases.where((t) => t['status'] != 'success').length;
+    final errors = 0; // No separate error tracking here, set 0 or implement if needed
+
+    buffer.writeln(
+        '  <testsuite name="Suite $suite" tests="$totalTests" failures="$failures" errors="$errors">');
+
     for (var test in cases) {
       final testName = htmlEscape.convert(test['name']);
       final testTime = test['time'];
@@ -85,11 +91,13 @@ void main() async {
 
       if (test['status'] != 'success') {
         final logs = htmlEscape.convert(test['logs'] ?? 'Test failed');
-        buffer.writeln('<failure message="${test['status']}"><![CDATA[$logs]]></failure>');
+        buffer.writeln(
+            '<failure message="${test['status']}"><![CDATA[$logs]]></failure>');
       }
 
       buffer.writeln('</testcase>');
     }
+
     buffer.writeln('  </testsuite>');
   });
 
