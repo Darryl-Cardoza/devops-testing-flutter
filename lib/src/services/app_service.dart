@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_movie_deep_dive_test/src/models/models.dart';
 import 'package:http/http.dart' show Client;
 
@@ -15,8 +16,8 @@ class AppService {
   AppService(this.client);
 
   Future<MoviesResponse> loadMovies() async {
-    final apiKey = '4205ec1d93b1e3465f636f0956a98c64';
-    final api = 'https://api.themoviedb.org/3';
+    final apiKey = dotenv.env['API_KEY'];
+    final api = dotenv.env['API_NAME'];
     final urlPath = 'movie/now_playing';
     final path = '$api/$urlPath?api_key=$apiKey&language=en-US';
 
