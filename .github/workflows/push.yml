@@ -16,39 +16,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Load environment variables from shell script
       - name: Load Environment Variables
         run: source .github/env.sh
 
-      # Step 3: Set up Java environment (required for Flutter)
       - name: Set Up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
 
-      # Step 4: Set up Flutter using local action
       - name: Setup Flutter
         uses: ./.github/actions/setup-flutter
 
-      # Step 5: Run Flutter tests with coverage and generate machine-readable output
       - name: Run Flutter Tests with Coverage and Machine Output
         run: |
           mkdir -p test-results
           flutter test --coverage --machine > test-results/results.json || true
           cat test-results/results.json
 
-      # Step 6: Convert machine-readable test output to JUnit XML format
-      - name: Convert to JUnit format
+      - name: Convert JSON to JUnit XML
         run: |
-          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
-          cat test-results/test-report.xml  
+          dart run tool/json_to_junit.dart < test-results/results.json > test-results/test-report.xml || true
+          cat test-results/test-report.xml
 
-      # Step 7: Convert JUnit XML report to HTML
       - name: Convert JUnit XML to HTML
         uses: pl-strflt/junit-xml-to-html@v1
         with:
@@ -56,26 +49,21 @@ jobs:
           input: 'test-results/test-report.xml'
           output: 'test-results/test-report.html'
 
-      # Step 8: Analyze test results using custom Dart script (supports filtering/minor failure tolerance)
       - name: Analyze Test Results and Allow Minor Failures
         run: dart run tool/run_filtered_tests.dart
 
-      # Step 9: Upload the HTML test report as an artifact
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Test-Report
           path: test-results/test-report.html
 
-      # Step 10: (Optional repeat) Run Flutter tests again to regenerate coverage
       - name: Run Flutter Tests with Coverage
         run: flutter test --coverage --machine > test-results/results.json || true
 
-      # Step 11: Install LCOV for generating HTML coverage report
       - name: Install LCOV
         run: sudo apt-get install -y lcov
 
-      # Step 12: Generate HTML report from LCOV coverage data
       - name: Generate HTML Coverage Report
         run: |
           mkdir -p coverage_report
@@ -86,33 +74,29 @@ jobs:
             --highlight \
             --legend
 
-      # Step 13: Upload HTML coverage report as artifact
       - name: Upload HTML Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Coverage-Report
           path: coverage_report/
 
-      # Step 14: Validate code coverage against a defined threshold
       - name: Check Coverage Threshold
         run: |
           total_coverage=$(lcov --summary coverage/lcov.info | grep -Po 'lines\.*: \K[0-9.]+(?=%)')
           echo "Total Coverage: $total_coverage%"
-          result=$(echo "$total_coverage < $COVERAGE_THRESHOLD" | bc -l)
+          result=$(echo "$total_coverage < ${{ vars.COVERAGE_THRESHOLD }}" | bc -l)
           if [ "$result" -eq 1 ]; then
-            echo "Code coverage ($total_coverage%) is below threshold ($COVERAGE_THRESHOLD%)."
+            echo "Code coverage ($total_coverage%) is below threshold (${{ vars.COVERAGE_THRESHOLD }}%)."
             exit 1 
           else
             echo "Code coverage ($total_coverage%) meets the threshold." 
           fi
 
-      # Step 15: Debug LCOV output if something goes wrong
       - name: Debug LCOV Output
         run: |
           ls -la coverage
           head coverage/lcov.info
 
-      # Step 16: Ensure the coverage report file exists
       - name: Ensure Coverage Report is Ready
         run: |
           if [ ! -f coverage/lcov.info ]; then
@@ -120,14 +104,12 @@ jobs:
             exit 1
           fi
 
-      # Step 17: Preview lcov.info content and size
       - name: Confirm lcov.info is Populated
         run: |
           echo "Preview of lcov.info:"
           head -n 20 coverage/lcov.info
           echo "Size: $(du -h coverage/lcov.info)"
 
-      # Step 18: Upload coverage data to Codacy
       - name: Upload Coverage to Codacy
         run: |
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
@@ -142,30 +124,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 19: Checkout source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 20: Load environment variables from shell script
       - name: Load Environment Variables
         run: source .github/env.sh
 
-      # Step 21: Set up Java for Flutter/Android build
       - name: Set Up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
 
-      # Step 22: Set up Flutter
       - name: Setup Flutter
         uses: ./.github/actions/setup-flutter
 
-      # Step 23: Build debug APK for Android with ABI splits
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      # Step 24: Optionally build iOS app (no code signing)
       - name: Build iOS App
         if: ${{ vars.BUILD_IOS == 'true' }}
         run: flutter build ios --no-codesign
@@ -176,11 +152,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 25: Checkout source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 26: Run SonarQube static analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
@@ -198,25 +172,20 @@ jobs:
       actions: read
 
     steps:
-      # Step 27: Checkout source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 28: Set up Flutter
       - name: Setup Flutter
         uses: ./.github/actions/setup-flutter
 
-      # Step 29: Download and make Codacy CLI executable
       - name: Set up Codacy CLI
         run: |
           curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh \
             -o /tmp/codacy-cli-v2 && chmod +x /tmp/codacy-cli-v2
 
-      # Step 30: Initialize Codacy CLI for project configuration
       - name: Initialize Codacy CLI
         run: /tmp/codacy-cli-v2 init
 
-      # Step 31: Run Dart static code analysis using Codacy CLI
       - name: Run Codacy CLI Analysis
         run: |
           /tmp/codacy-cli-v2 analyze \
@@ -224,7 +193,6 @@ jobs:
             --format sarif \
             --output ./results.sarif
 
-      # Step 32: Upload SARIF results to Codacy for reporting
       - name: Upload SARIF Results to Codacy
         run: |
           if [ -f ./results.sarif ]; then
@@ -235,3 +203,4 @@ jobs:
           else
             echo "No SARIF file found, skipping upload"
           fi
+
