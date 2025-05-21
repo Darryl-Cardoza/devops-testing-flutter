@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_movie_deep_dive_test/src/models/models.dart';
 import 'package:flutter_movie_deep_dive_test/src/services/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +9,9 @@ import 'package:http/testing.dart';
 
 import '../common.dart';
 
-main() {
+main() async {
+  await dotenv.load(fileName: '.env');
+
   group('loadMovies', () {
     test('CRITICAL: status == 200', () async {
       final mockClient = MockClient((request) async {
