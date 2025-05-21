@@ -18,9 +18,7 @@ void main() async {
     } catch (_) {
       return null;
     }
-  })
-      .whereType<Map>()
-      .toList();
+  }).whereType<Map>().toList();
 
   final testMetadata = <int, Map>{}; // testID -> test metadata
   final testResults = <String, List<Map>>{}; // suiteID -> list of test results
@@ -64,7 +62,7 @@ void main() async {
           testResults.putIfAbsent(suite, () => []).add({
             'name': meta['name'],
             'status': e['result'], // e.g. 'success', 'failure', etc.
-            'time': duration.toStringAsFixed(3),
+            'time': duration,
             'logs': (meta['logs'] as List<String>).join('\n'),
           });
         }
@@ -79,14 +77,17 @@ void main() async {
   testResults.forEach((suite, cases) {
     final totalTests = cases.length;
     final failures = cases.where((t) => t['status'] != 'success').length;
-    final errors = 0; // No separate error tracking here, set 0 or implement if needed
+    final errors = 0; // Set 0 or add error counting logic if you want
+
+    // Sum total time of all test cases in the suite
+    final totalTime = cases.fold<double>(0.0, (sum, t) => sum + (t['time'] as double));
 
     buffer.writeln(
-        '  <testsuite name="Suite $suite" tests="$totalTests" failures="$failures" errors="$errors">');
+        '  <testsuite name="Suite $suite" tests="$totalTests" failures="$failures" errors="$errors" time="${totalTime.toStringAsFixed(3)}">');
 
     for (var test in cases) {
       final testName = htmlEscape.convert(test['name']);
-      final testTime = test['time'];
+      final testTime = (test['time'] as double).toStringAsFixed(3);
       buffer.write('    <testcase name="$testName" time="$testTime">');
 
       if (test['status'] != 'success') {
