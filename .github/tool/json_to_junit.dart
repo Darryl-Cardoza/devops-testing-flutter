@@ -1,17 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:html_unescape/html_unescape.dart';
+
+final htmlEscape = const HtmlEscape();
 
 void main() async {
-  final input = await stdin.transform(utf8.decoder).join();
+  final inputLines = await stdin
+      .transform(utf8.decoder)
+      .transform(const LineSplitter())
+      .toList();
 
-  if (input.trim().isEmpty) {
+  if (inputLines.isEmpty) {
     stderr.writeln('Input is empty. No test results to convert.');
-    print('<?xml version="1.0" encoding="UTF-8"?><testsuites></testsuites>');
+    stdout.writeln('<?xml version="1.0" encoding="UTF-8"?><testsuites></testsuites>');
+    await stdout.flush();
     exit(0);
   }
 
-  final events = LineSplitter.split(input)
-      .where((line) => line.trim().isNotEmpty)
+  final events = inputLines
       .map((line) {
     try {
       return json.decode(line);
@@ -79,11 +85,14 @@ void main() async {
     for (var test in cases) {
       final testName = htmlEscape.convert(test['name']);
       final testTime = test['time'];
+      final status = htmlEscape.convert(test['status']);
+      final logs = test['logs'] ?? '';
+
       buffer.write('    <testcase name="$testName" time="$testTime">');
 
-      if (test['status'] != 'success') {
-        final logs = htmlEscape.convert(test['logs'] ?? 'Test failed');
-        buffer.writeln('<failure message="${test['status']}"><![CDATA[$logs]]></failure>');
+      if (status != 'success') {
+        final escapedLogs = logs.replaceAll(']]>', ']]]]><![CDATA[>'); // Safe CDATA
+        buffer.writeln('<failure message="$status"><![CDATA[$escapedLogs]]></failure>');
       }
 
       buffer.writeln('</testcase>');
@@ -92,5 +101,7 @@ void main() async {
   });
 
   buffer.writeln('</testsuites>');
-  print(buffer.toString());
+
+  stdout.writeln(buffer.toString());
+  await stdout.flush(); // Ensure all output is written before exiting
 }
