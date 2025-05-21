@@ -45,8 +45,8 @@ jobs:
       # Step 6: Convert machine-readable test output to JUnit XML format
       - name: Convert to JUnit format
         run: |
-          cat test-results/results.json | flutter pub run junitreport:tojunit > test-results/test-report.xml || true
-          cat test-results/test-report.xml  
+          dart run tool/json_to_junit.dart < test-results/results.json > test-results/test-report.xml || true
+          cat test-results/test-report.xml
 
       # Step 7: Convert JUnit XML report to HTML
       - name: Convert JUnit XML to HTML
