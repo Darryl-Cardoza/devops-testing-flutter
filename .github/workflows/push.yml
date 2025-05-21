@@ -94,9 +94,9 @@ jobs:
         run: |
           total_coverage=$(lcov --summary coverage/lcov.info | grep -Po 'lines\.*: \K[0-9.]+(?=%)')
           echo "Total Coverage: $total_coverage%"
-          result=$(echo "$total_coverage < $COVERAGE_THRESHOLD" | bc -l)
+          result=$(echo "$total_coverage < ${{ vars.COVERAGE_THRESHOLD }}" | bc -l)
           if [ "$result" -eq 1 ]; then
-            echo "Code coverage ($total_coverage%) is below threshold ($COVERAGE_THRESHOLD%)."
+            echo "Code coverage ($total_coverage%) is below threshold (${{ vars.COVERAGE_THRESHOLD }}%)."
             exit 1 
           else
             echo "Code coverage ($total_coverage%) meets the threshold." 
