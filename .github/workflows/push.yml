@@ -58,7 +58,7 @@ jobs:
 
       # Step 8: Analyze test results using custom Dart script (supports filtering/minor failure tolerance)
       - name: Analyze Test Results and Allow Minor Failures
-        run: dart run tool/run_filtered_tests.dart
+        run: dart run .github/tool/run_filtered_tests.dart
 
       # Step 9: Upload the HTML test report as an artifact
       - name: Upload Test Report
