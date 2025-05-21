@@ -24,17 +24,16 @@ void main() async {
 
   final testMetadata = <int, Map>{}; // testID -> test metadata
   final testResults = <String, List<Map>>{}; // suiteID -> list of test results
+  final htmlEscape = HtmlEscape();
 
   for (var e in events) {
     switch (e['type']) {
       case 'testStart':
         final test = e['test'];
         if (test != null) {
-          final suiteID = test['suiteID']?.toString() ?? 'unknown';
           testMetadata[test['id']] = {
             'name': test['name'],
-            'suite': suiteID,
-            'url': test['url'],
+            'suite': test['suiteID'],
             'startTime': e['time'],
             'logs': <String>[],
           };
@@ -45,10 +44,10 @@ void main() async {
       case 'error':
       case 'message':
         final id = e['testID'];
-        if (testMetadata.containsKey(id)) {
+        final meta = testMetadata[id];
+        if (meta != null) {
           final message = e['message'] ?? e['error'] ?? '';
-          final logs = testMetadata[id]['logs'] as List<String>;
-          logs.add(message.toString());
+          (meta['logs'] as List<String>).add(message.toString());
         }
         break;
 
@@ -61,9 +60,8 @@ void main() async {
               ? (endTime - meta['startTime']) / 1000.0
               : 0.0;
 
-          final url = meta['url'] ?? '';
-          final suiteName = url.toString().split(Platform.pathSeparator).last;
-          testResults.putIfAbsent(suiteName, () => []).add({
+          final suite = meta['suite'].toString();
+          testResults.putIfAbsent(suite, () => []).add({
             'name': meta['name'],
             'status': e['result'],
             'time': duration.toStringAsFixed(3),
@@ -79,14 +77,14 @@ void main() async {
   buffer.writeln('<testsuites>');
 
   testResults.forEach((suite, cases) {
-    buffer.writeln('  <testsuite name="$suite" tests="${cases.length}">');
+    buffer.writeln('  <testsuite name="Suite $suite" tests="${cases.length}">');
     for (var test in cases) {
-      final testName = _xmlEscape(test['name']);
+      final testName = htmlEscape.convert(test['name']);
       final testTime = test['time'];
       buffer.write('    <testcase name="$testName" time="$testTime">');
 
       if (test['status'] != 'success') {
-        final logs = _xmlEscape(test['logs'] ?? 'Test failed');
+        final logs = htmlEscape.convert(test['logs'] ?? 'Test failed');
         buffer.writeln('<failure message="${test['status']}"><![CDATA[$logs]]></failure>');
       }
 
@@ -97,13 +95,4 @@ void main() async {
 
   buffer.writeln('</testsuites>');
   print(buffer.toString());
-}
-
-String _xmlEscape(String? input) {
-  return input
-      ?.replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&apos;') ?? '';
 }
