@@ -31,7 +31,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-      # Step 4: Set up Flutter using local action
+      # Step 4: Set up Flutter and LCov using local action
       - name: Setup Flutter
         uses: ./.github/actions/setup-flutter
 
@@ -71,11 +71,7 @@ jobs:
       - name: Run Flutter Tests with Coverage
         run: flutter test --coverage --machine > test-results/results.json || true
 
-      # Step 11: Install LCOV for generating HTML coverage report
-      - name: Install LCOV
-        run: sudo apt-get install -y lcov
-
-      # Step 12: Generate HTML report from LCOV coverage data
+      # Step 11: Generate HTML report from LCOV coverage data
       - name: Generate HTML Coverage Report
         run: |
           mkdir -p coverage_report
@@ -86,14 +82,14 @@ jobs:
             --highlight \
             --legend
 
-      # Step 13: Upload HTML coverage report as artifact
+      # Step 12: Upload HTML coverage report as artifact
       - name: Upload HTML Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: Flutter-Coverage-Report
           path: coverage_report/
 
-      # Step 14: Validate code coverage against a defined threshold
+      # Step 13: Validate code coverage against a defined threshold
       - name: Check Coverage Threshold
         run: |
           total_coverage=$(lcov --summary coverage/lcov.info | grep -Po 'lines\.*: \K[0-9.]+(?=%)')
@@ -106,13 +102,13 @@ jobs:
             echo "Code coverage ($total_coverage%) meets the threshold." 
           fi
 
-      # Step 15: Debug LCOV output if something goes wrong
+      # Step 14: Debug LCOV output if something goes wrong
       - name: Debug LCOV Output
         run: |
           ls -la coverage
           head coverage/lcov.info
 
-      # Step 16: Ensure the coverage report file exists
+      # Step 15: Ensure the coverage report file exists
       - name: Ensure Coverage Report is Ready
         run: |
           if [ ! -f coverage/lcov.info ]; then
@@ -120,14 +116,14 @@ jobs:
             exit 1
           fi
 
-      # Step 17: Preview lcov.info content and size
+      # Step 16: Preview lcov.info content and size
       - name: Confirm lcov.info is Populated
         run: |
           echo "Preview of lcov.info:"
           head -n 20 coverage/lcov.info
           echo "Size: $(du -h coverage/lcov.info)"
 
-      # Step 18: Upload coverage data to Codacy
+      # Step 17: Upload coverage data to Codacy
       - name: Upload Coverage to Codacy
         run: |
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
@@ -142,30 +138,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 19: Checkout source code
+      # Step 18: Checkout source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 20: Load environment variables from shell script
+      # Step 19: Load environment variables from shell script
       - name: Load Environment Variables
         run: source .github/env.sh
 
-      # Step 21: Set up Java for Flutter/Android build
+      # Step 20: Set up Java for Flutter/Android build
       - name: Set Up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
 
-      # Step 22: Set up Flutter
+      # Step 21: Set up Flutter
       - name: Setup Flutter
         uses: ./.github/actions/setup-flutter
 
-      # Step 23: Build debug APK for Android with ABI splits
+      # Step 22: Build debug APK for Android with ABI splits
       - name: Build Debug APK
         run: flutter build apk --split-per-abi
 
-      # Step 24: Optionally build iOS app (no code signing)
+      # Step 23: Optionally build iOS app (no code signing)
       - name: Build iOS App
         if: ${{ vars.BUILD_IOS == 'true' }}
         run: flutter build ios --no-codesign
@@ -176,11 +172,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 25: Checkout source code
+      # Step 24: Checkout source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 26: Run SonarQube static analysis
+      # Step 25: Run SonarQube static analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
@@ -198,25 +194,21 @@ jobs:
       actions: read
 
     steps:
-      # Step 27: Checkout source code
+      # Step 26: Checkout source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 28: Set up Flutter
+      # Step 27: Set up Flutter
       - name: Setup Flutter
         uses: ./.github/actions/setup-flutter
 
-      # Step 29: Download and make Codacy CLI executable
+      # Step 28: Download and make Codacy CLI executable
       - name: Set up Codacy CLI
         run: |
           curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh \
             -o /tmp/codacy-cli-v2 && chmod +x /tmp/codacy-cli-v2
 
-      # Step 30: Initialize Codacy CLI for project configuration
-#      - name: Initialize Codacy CLI
-#        run: /tmp/codacy-cli-v2 init
-
-      # Step 31: Run Dart static code analysis using Codacy CLI
+      # Step 29: Run Dart static code analysis using Codacy CLI
       - name: Run Codacy CLI Analysis
         run: |
           /tmp/codacy-cli-v2 analyze \
@@ -224,7 +216,7 @@ jobs:
             --format sarif \
             --output ./results.sarif
 
-      # Step 32: Upload SARIF results to Codacy for reporting
+      # Step 30: Upload SARIF results to Codacy for reporting
       - name: Upload SARIF Results to Codacy
         run: |
           if [ -f ./results.sarif ]; then

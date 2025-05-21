@@ -1,6 +1,6 @@
-name: Setup Flutter
+name: Setup Flutter and LCOV
 
-description: Common Flutter setup (SDK + pub get)
+description: Sets up Flutter and installs LCOV for coverage reporting
 
 runs:
   using: "composite"
@@ -13,4 +13,8 @@ runs:
 
     - name: Install Dependencies
       run: flutter pub get
+      shell: bash
+
+    - name: Install LCOV
+      run: sudo apt-get update && sudo apt-get install -y lcov
       shell: bash
