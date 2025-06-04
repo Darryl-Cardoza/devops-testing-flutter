@@ -21,3 +21,5 @@ jobs:
   call-release:
     needs: call-flutter-workflow
     uses: Darryl-Cardoza/reusable-repo-flutter/.github/workflows/release.yml@main
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
