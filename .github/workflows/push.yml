@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
 
+permissions:
+  actions: read
+  security-events: write
+  contents: read
+
 jobs:
   call-flutter-workflow:
     uses: Darryl-Cardoza/reusable-repo-flutter/.github/workflows/push.yml@main
