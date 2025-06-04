@@ -1,20 +1,14 @@
-name: "Test and Build Flutter App"
+name: Call Reusable Workflow
 
 on:
   push:
-    branches: ["**"]
-  pull_request:
-    branches: [main, master]
-
-env:
-  FLUTTER_VERSION: ${{ vars.FLUTTER_VERSION }}
-  FLUTTER_CHANNEL: ${{ vars.FLUTTER_CHANNEL }}
+    branches: [main]
 
 jobs:
-  call-workflow:
+  call-flutter-workflow:
     uses: Darryl-Cardoza/reusable-repo-flutter/.github/workflows/push.yml@main
     with:
-      build_ios: false
+      build_ios: true
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
