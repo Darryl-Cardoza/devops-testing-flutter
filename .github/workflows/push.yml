@@ -19,4 +19,5 @@ jobs:
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
   call-release:
+    needs: call-flutter-workflow
     uses: Darryl-Cardoza/reusable-repo-flutter/.github/workflows/release.yml@main
