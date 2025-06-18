@@ -2,6 +2,9 @@ name: Call Reusable Workflow
 
 on:
   push:
+    branches: ['**']
+
+  pull_request:
     branches: [main]
 
 permissions:
@@ -10,7 +13,22 @@ permissions:
   contents: read
 
 jobs:
+  extract-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Version from pubspec.yaml
+        id: version
+        run: |
+          version=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          echo "version=v$version"
+          echo "version=v$version" >> $GITHUB_OUTPUT
+
   call-flutter-workflow:
+    needs: extract-version
     uses: Darryl-Cardoza/reusable-repo-flutter/.github/workflows/push.yml@main
     with:
       build_ios: false
@@ -18,9 +36,10 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
-
   call-release:
-    needs: call-flutter-workflow
+    needs: [call-flutter-workflow, extract-version]
     uses: Darryl-Cardoza/reusable-repo-flutter/.github/workflows/release.yml@main
+    with:
+      version: ${{ needs.extract-version.outputs.version }}
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
