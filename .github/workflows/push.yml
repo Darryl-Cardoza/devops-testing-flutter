@@ -12,6 +12,7 @@ permissions:
   security-events: write
   contents: read
 
+
 jobs:
   extract-version:
     runs-on: ubuntu-latest
