@@ -27,6 +27,7 @@ jobs:
           version=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
           echo "version=v$version"
           echo "version=v$version" >> $GITHUB_OUTPUT
+          
 
   call-flutter-workflow:
     needs: extract-version
