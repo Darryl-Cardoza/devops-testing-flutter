@@ -31,10 +31,13 @@ jobs:
 
   call-flutter-workflow:
     name: Calling Reusable CI Workflow
-    needs: extract-version
     uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
     with:
-      build_ios: false
+      build_ios: ${{ vars.BUILD_IOS }}
+      flutter_version: ${{ vars.FLUTTER_VERSION }}
+      flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
+      coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
+
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
