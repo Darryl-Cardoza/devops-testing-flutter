@@ -32,7 +32,7 @@ jobs:
     needs: extract-version
     uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
     with:
-      build_ios: ${{ vars.BUILD_IOS }}
+      build_ios: ${{ vars.BUILD_IOS == 'true' }}
       flutter_version: ${{ vars.FLUTTER_VERSION }}
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
