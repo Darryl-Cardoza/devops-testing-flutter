@@ -30,6 +30,7 @@ jobs:
           
 
   call-flutter-workflow:
+    name: Calling Reusable CI Workflow
     needs: extract-version
     uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
     with:
@@ -38,10 +39,10 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
-  call-release:
-    needs: [call-flutter-workflow, extract-version]
-    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/release.yml@main
-    with:
-      version: ${{ needs.extract-version.outputs.version }}
-    secrets:
-      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+  # call-release:
+  #   needs: [call-flutter-workflow, extract-version]
+  #   uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/release.yml@main
+  #   with:
+  #     version: ${{ needs.extract-version.outputs.version }}
+  #   secrets:
+  #     PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
