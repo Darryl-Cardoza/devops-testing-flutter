@@ -12,7 +12,6 @@ permissions:
   security-events: write
   contents: read
 
-
 jobs:
   extract-version:
     runs-on: ubuntu-latest
@@ -27,7 +26,6 @@ jobs:
           version=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
           echo "version=v$version"
           echo "version=v$version" >> $GITHUB_OUTPUT
-          
 
   call-flutter-workflow:
     name: Calling Reusable CI Workflow
@@ -38,15 +36,9 @@ jobs:
       flutter_version: ${{ vars.FLUTTER_VERSION }}
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
+      # Optional: Pass version if needed later
+      # version: ${{ needs.extract-version.outputs.version }}
 
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-
-  # call-release:
-  #   needs: [call-flutter-workflow, extract-version]
-  #   uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/release.yml@main
-  #   with:
-  #     version: ${{ needs.extract-version.outputs.version }}
-  #   secrets:
-  #     PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
