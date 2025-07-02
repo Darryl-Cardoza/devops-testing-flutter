@@ -36,8 +36,6 @@ jobs:
       flutter_version: ${{ vars.FLUTTER_VERSION }}
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
-      # Optional: Pass version if needed later
-      # version: ${{ needs.extract-version.outputs.version }}
 
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
