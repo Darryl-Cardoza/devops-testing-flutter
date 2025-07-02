@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(color: Colors.red),
             );
           }
-          return const Center(child: Text('Waiting for data...'));
+          return const Center(child: Text('Wait...'));
         }),
       ),
     );
