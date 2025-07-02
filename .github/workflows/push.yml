@@ -31,6 +31,7 @@ jobs:
 
   call-flutter-workflow:
     name: Calling Reusable CI Workflow
+    needs: extract-version
     uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
     with:
       build_ios: ${{ vars.BUILD_IOS }}
