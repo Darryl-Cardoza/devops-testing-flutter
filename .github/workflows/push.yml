@@ -3,7 +3,6 @@ name: Call Reusable Workflow
 on:
   push:
     branches: ['**']
-
   pull_request:
     branches: [main]
 
@@ -17,6 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      build_ios: ${{ steps.env.outputs.build_ios }}
+      flutter_version: ${{ steps.env.outputs.flutter_version }}
+      flutter_channel: ${{ steps.env.outputs.flutter_channel }}
+      coverage_threshold: ${{ steps.env.outputs.coverage_threshold }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,18 +28,26 @@ jobs:
         id: version
         run: |
           version=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
-          echo "version=v$version"
           echo "version=v$version" >> $GITHUB_OUTPUT
+
+      - name: Load .github/env.sh and export values
+        id: env
+        run: |
+          source .github/env.sh
+          echo "build_ios=$BUILD_IOS" >> $GITHUB_OUTPUT
+          echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
+          echo "flutter_channel=$FLUTTER_CHANNEL" >> $GITHUB_OUTPUT
+          echo "coverage_threshold=$COVERAGE_THRESHOLD" >> $GITHUB_OUTPUT
 
   call-flutter-workflow:
     name: Calling Reusable CI Workflow
     needs: extract-version
     uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
     with:
-      build_ios: ${{ vars.BUILD_IOS == 'true' }}
-      flutter_version: ${{ vars.FLUTTER_VERSION }}
-      flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
-      coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
+      build_ios: ${{ needs.extract-version.outputs.build_ios == 'true' }}
+      flutter_version: ${{ needs.extract-version.outputs.flutter_version }}
+      flutter_channel: ${{ needs.extract-version.outputs.flutter_channel }}
+      coverage_threshold: ${{ needs.extract-version.outputs.coverage_threshold }}
 
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
