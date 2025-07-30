@@ -49,3 +49,4 @@ jobs:
       version: ${{ needs.extract-version.outputs.version }}
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+
