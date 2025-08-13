@@ -11,8 +11,6 @@ class MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(simulatedErrorVariable); // ❌ This variable does not exist — analyzer error.
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
