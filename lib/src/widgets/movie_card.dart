@@ -30,7 +30,8 @@ class MovieCard extends StatelessWidget {
                   data.title ?? "",
                   key: Key('${data.id}-title'),
                   textAlign: TextAlign.left,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 18),
                 ),
               ),
               Text(
@@ -63,3 +64,4 @@ class MovieCard extends StatelessWidget {
     );
   }
 }
+
