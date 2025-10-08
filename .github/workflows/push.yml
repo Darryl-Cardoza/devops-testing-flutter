@@ -1,51 +1,77 @@
-name: Call Reusable Workflow
+# .github/workflows/ci-cd-caller.yml
+# This is the main workflow in your app's repository.
+# It calls the reusable CI and CD workflows based on the event trigger.
+
+name: Flutter CI/CD
 
 on:
   push:
-    branches: ['**']
-
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
+  contents: write # Needed for creating GitHub releases
+  pull-requests: read
   actions: read
   security-events: write
-  contents: read
 
 jobs:
+  # This job extracts the app version from pubspec.yaml to use in other jobs.
   extract-version:
+    name: Extract App Version
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Extract Version from pubspec.yaml
         id: version
         run: |
-          version=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
-          echo "version=v$version"
-          echo "version=v$version" >> $GITHUB_OUTPUT
+          # Extracts version like "1.0.0" from "version: 1.0.0+1"
+          version_string=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          echo "version=${version_string}" >> $GITHUB_OUTPUT
+          echo "Extracted version: ${version_string}"
 
-  call-flutter-workflow:
-    name: Calling Reusable CI Workflow
+  # This job calls the reusable CI workflow.
+  # It runs on every push to main and on every pull request targeting main.
+  call-ci-workflow:
+    name: Call Reusable Release Workflow
     needs: extract-version
     uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
     with:
+      flutter_version: ${{ vars.FLUTTER_VERSION || '3.13.0' }} # Use repo variable or a default
+      flutter_channel: ${{ vars.FLUTTER_CHANNEL || 'stable' }}
+      coverage_threshold: ${{ vars.COVERAGE_THRESHOLD || '80' }}
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
-      flutter_version: ${{ vars.FLUTTER_VERSION }}
-      flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
-      coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
-
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
-  call-release-workflow:
+  # This job calls the reusable CD workflow.
+  # It ONLY runs on a push to the main branch, ensuring releases are controlled.
+  call-cd-workflow:
     name: Call Reusable Release Workflow
-    needs: extract-version
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [extract-version, call-ci-workflow] # Ensures CI must pass before CD runs
     uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/release.yml@main
     with:
       version: ${{ needs.extract-version.outputs.version }}
+      # Control cloud deployment via a repository variable for safety
+      deploy_to_cloud: ${{ vars.DEPLOY_TO_CLOUD == 'true' }}
+      terraform_working_dir: './terraform' # Path to your terraform files
     secrets:
+      # Pass a PAT to allow the reusable workflow to create releases and upload artifacts
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      # Pass all necessary cloud credentials
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
