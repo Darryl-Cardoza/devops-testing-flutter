@@ -56,19 +56,19 @@ jobs:
 
   # This job calls the reusable CD workflow.
   # It ONLY runs on a push to the main branch, ensuring releases are controlled.
-  call-cd-workflow:
-    name: Call Reusable Release Workflow
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [extract-version, call-ci-workflow] # Ensures CI must pass before CD runs
-    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/release.yml@main
-    with:
-      version: ${{ needs.extract-version.outputs.version }}
-      # Control cloud deployment via a repository variable for safety
-      deploy_to_cloud: ${{ vars.DEPLOY_TO_CLOUD == 'true' }}
-      terraform_working_dir: './terraform' # Path to your terraform files
-    secrets:
-      # Pass a PAT to allow the reusable workflow to create releases and upload artifacts
-      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-      # Pass all necessary cloud credentials
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#  call-cd-workflow:
+#    name: Call Reusable Release Workflow
+#    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+#    needs: [extract-version, call-ci-workflow] # Ensures CI must pass before CD runs
+#    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/release.yml@main
+#    with:
+#      version: ${{ needs.extract-version.outputs.version }}
+#      # Control cloud deployment via a repository variable for safety
+#      deploy_to_cloud: ${{ vars.DEPLOY_TO_CLOUD == 'true' }}
+#      terraform_working_dir: './terraform' # Path to your terraform files
+#    secrets:
+#      # Pass a PAT to allow the reusable workflow to create releases and upload artifacts
+#      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+#      # Pass all necessary cloud credentials
+#      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
