@@ -48,7 +48,7 @@ jobs:
       flutter_version: ${{ vars.FLUTTER_VERSION || '3.32.0' }} # Use repo variable or a default
       flutter_channel: ${{ vars.FLUTTER_CHANNEL || 'stable' }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD || '80' }}
-      build_ios: ${{ vars.BUILD_IOS || 'false' }}
+      build_ios: ${{ vars.BUILD_IOS == 'true' }}
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
