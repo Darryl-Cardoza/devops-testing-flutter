@@ -52,7 +52,6 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # This job calls the reusable CD workflow.
   # It ONLY runs on a push to the main branch, ensuring releases are controlled.
