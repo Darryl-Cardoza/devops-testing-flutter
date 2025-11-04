@@ -42,12 +42,12 @@ jobs:
   call-ci-workflow:
     name: Call Reusable Release Workflow
     needs: extract-version
-    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
+    uses: Rite-Technologies-23/reusable-repo-flutter/blob/main/.github/workflows/push.yml@main
     with:
-      flutter_version: ${{ vars.FLUTTER_VERSION || '3.13.0' }} # Use repo variable or a default
+      flutter_version: ${{ vars.FLUTTER_VERSION || '3.32.0' }} # Use repo variable or a default
       flutter_channel: ${{ vars.FLUTTER_CHANNEL || 'stable' }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD || '80' }}
-      build_ios: ${{ vars.BUILD_IOS == 'true' }}
+      build_ios: ${{ vars.BUILD_IOS == 'false' }}
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
