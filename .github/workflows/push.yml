@@ -43,6 +43,7 @@ jobs:
     name: Call Reusable Release Workflow
     needs: extract-version
     uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
+
     with:
       flutter_version: ${{ vars.FLUTTER_VERSION || '3.32.0' }} # Use repo variable or a default
       flutter_channel: ${{ vars.FLUTTER_CHANNEL || 'stable' }}
