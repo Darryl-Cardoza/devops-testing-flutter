@@ -56,17 +56,17 @@ jobs:
 
   # This job calls the reusable CD workflow.
   # It ONLY runs on a push to the main branch, ensuring releases are controlled.
-#  call-cd-workflow:
-#    name: Call Reusable CD Workflow
-#    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-#    needs: [extract-version, call-ci-workflow]
-#    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/reusable-cd.yml@main
-#    with:
-#      version: ${{ needs.extract-version.outputs.version }}
-#      deploy_to_cloud: true
-#      enable_aws: true
-#      terraform_working_dir: './terraform'
-#    secrets:
-#      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-#      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  call-cd-workflow:
+    name: Call Reusable CD Workflow
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [extract-version, call-ci-workflow]
+    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/reusable-cd.yml@main
+    with:
+      version: ${{ needs.extract-version.outputs.version }}
+      deploy_to_cloud: true
+      enable_aws: true
+      terraform_working_dir: './terraform'
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
