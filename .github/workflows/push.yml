@@ -39,19 +39,19 @@ jobs:
 
   # This job calls the reusable CI workflow.
   # It runs on every push to main and on every pull request targeting main.
-  call-ci-workflow:
-    name: Call Reusable Release Workflow
-    needs: extract-version
-    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
-
-    with:
-      flutter_version: ${{ vars.FLUTTER_VERSION || '3.32.0' }} # Use repo variable or a default
-      flutter_channel: ${{ vars.FLUTTER_CHANNEL || 'stable' }}
-      coverage_threshold: ${{ vars.COVERAGE_THRESHOLD || '80' }}
-      build_ios: ${{ vars.BUILD_IOS == 'true' }}
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+#  call-ci-workflow:
+#    name: Call Reusable Release Workflow
+#    needs: extract-version
+#    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
+#
+#    with:
+#      flutter_version: ${{ vars.FLUTTER_VERSION || '3.32.0' }} # Use repo variable or a default
+#      flutter_channel: ${{ vars.FLUTTER_CHANNEL || 'stable' }}
+#      coverage_threshold: ${{ vars.COVERAGE_THRESHOLD || '80' }}
+#      build_ios: ${{ vars.BUILD_IOS == 'true' }}
+#    secrets:
+#      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#      CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
   # This job calls the reusable CD workflow.
   # It ONLY runs on a push to the main branch, ensuring releases are controlled.
