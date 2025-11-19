@@ -42,7 +42,7 @@ jobs:
   call-ci-workflow:
     name: Call Reusable Release Workflow
     needs: extract-version
-    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/push.yml@main
+    uses: Darryl-Cardoza/reusable-repo-flutter/.github/workflows/push.yml@main
 
     with:
       flutter_version: ${{ vars.FLUTTER_VERSION || '3.32.0' }} # Use repo variable or a default
@@ -59,7 +59,7 @@ jobs:
     name: Call Reusable CD Workflow
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [extract-version, call-ci-workflow]
-    uses: Rite-Technologies-23/reusable-repo-flutter/.github/workflows/release.yml@main
+    uses: Darryl-Cardoza/reusable-repo-flutter/.github/workflows/release.yml@main
     with:
       version: ${{ needs.extract-version.outputs.version }}
       deploy_to_cloud: true
