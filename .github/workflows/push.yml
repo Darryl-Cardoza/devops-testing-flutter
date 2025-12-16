@@ -62,11 +62,15 @@ jobs:
     uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/release.yml@main
     with:
       version: ${{ needs.extract-version.outputs.version }}
-      deploy_to_cloud: true
-      enable_aws: true
+      deploy_to_cloud: false
+      enable_aws: false
       terraform_working_dir: './terraform'
+      deploy_to_playstore: true
+      playstore_track: internal
+      package_name: com.example.devops_testing_flutter
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
