@@ -1,0 +1,80 @@
+# =========================
+# Flutter / Dart
+# =========================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+
+# Flutter version management
+.fvm/
+.flutter-version
+
+# Generated files
+.packages
+.pubspec.lock
+
+# =========================
+# Android
+# =========================
+android/.gradle/
+android/local.properties
+android/key.properties
+android/upload-keystore.jks
+android/*.jks
+android/app/build/
+
+# Android Studio
+*.iml
+.idea/
+.gradle/
+
+# =========================
+# iOS / macOS
+# =========================
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/App.framework
+ios/Flutter/engine/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/.last_build_id
+ios/Flutter/ephemeral/
+ios/Runner.xcworkspace/
+ios/DerivedData/
+
+# macOS
+macos/Pods/
+macos/Flutter/ephemeral/
+
+# =========================
+# Web
+# =========================
+web/.dart_tool/
+web/build/
+
+# =========================
+# Windows / Linux
+# =========================
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/
+*.log
+*.swp
+*.swo
+
+# =========================
+# CI / OS
+# =========================
+.DS_Store
+Thumbs.db
+.env
+.env.*
