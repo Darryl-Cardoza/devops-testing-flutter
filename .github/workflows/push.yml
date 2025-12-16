@@ -1,6 +1,6 @@
 # .github/workflows/ci-cd-caller.yml
-# This is the main workflow in your app's repository.
-# It calls the reusable CI and CD workflows based on the event trigger.
+# Main workflow for Flutter CI/CD
+# Orchestrates reusable CI (push.yml) and CD (release.yml)
 
 name: Flutter CI/CD
 
@@ -13,18 +13,21 @@ on:
       - main
 
 permissions:
-  contents: write # Needed for creating GitHub releases
+  contents: write          # Required for GitHub Releases
   pull-requests: read
   actions: read
   security-events: write
 
 jobs:
-  # This job extracts the app version from pubspec.yaml to use in other jobs.
+  # ---------------------------------------------------------------------------
+  # Extract app version from pubspec.yaml
+  # ---------------------------------------------------------------------------
   extract-version:
     name: Extract App Version
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -32,45 +35,55 @@ jobs:
       - name: Extract Version from pubspec.yaml
         id: version
         run: |
-          # Extracts version like "1.0.0" from "version: 1.0.0+1"
+          # Example: version: 1.0.0+12 → 1.0.0
           version_string=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
           echo "version=${version_string}" >> $GITHUB_OUTPUT
           echo "Extracted version: ${version_string}"
 
-  # This job calls the reusable CI workflow.
-  # It runs on every push to main and on every pull request targeting main.
+  # ---------------------------------------------------------------------------
+  # Call reusable CI workflow (tests, analysis, build)
+  # Runs on PRs and pushes
+  # ---------------------------------------------------------------------------
   call-ci-workflow:
-    name: Call Reusable Release Workflow
+    name: Call Reusable CI Workflow
     needs: extract-version
     uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/push.yml@main
 
     with:
-      flutter_version: ${{ vars.FLUTTER_VERSION || '3.32.0' }} # Use repo variable or a default
-      flutter_channel: ${{ vars.FLUTTER_CHANNEL || 'stable' }}
-      coverage_threshold: ${{ vars.COVERAGE_THRESHOLD || '80' }}
+      # IMPORTANT:
+      # Defaults must live inside the reusable workflow (push.yml),
+      # NOT here. GitHub Actions does NOT support `||` fallback.
+      flutter_version: ${{ vars.FLUTTER_VERSION }}
+      flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
+      coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
+
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
-  # This job calls the reusable CD workflow.
-  # It ONLY runs on a push to the main branch, ensuring releases are controlled.
+  # ---------------------------------------------------------------------------
+  # Call reusable CD workflow
+  # Runs ONLY on push to main
+  # ---------------------------------------------------------------------------
   call-cd-workflow:
     name: Call Reusable CD Workflow
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [extract-version, call-ci-workflow]
     uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/release.yml@main
+
     with:
       version: ${{ needs.extract-version.outputs.version }}
+
+      # Cloud / Infra (disabled)
       deploy_to_cloud: false
       enable_aws: false
-      terraform_working_dir: './terraform'
+
+      # Play Store
       deploy_to_playstore: true
       playstore_track: internal
       package_name: com.devops.test
+
     secrets:
-      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      # ONLY pass secrets that are actually required
       PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
