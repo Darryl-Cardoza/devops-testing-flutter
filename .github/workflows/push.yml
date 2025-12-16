@@ -85,5 +85,4 @@ jobs:
       package_name: com.devops.test
 
     secrets:
-      # ONLY pass secrets that are actually required
       PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
