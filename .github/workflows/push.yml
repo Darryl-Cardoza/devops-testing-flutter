@@ -50,9 +50,7 @@ jobs:
     uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/push.yml@main
 
     with:
-      # IMPORTANT:
-      # Defaults must live inside the reusable workflow (push.yml),
-      # NOT here. GitHub Actions does NOT support `||` fallback.
+
       flutter_version: ${{ vars.FLUTTER_VERSION }}
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
