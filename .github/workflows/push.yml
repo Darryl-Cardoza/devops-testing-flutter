@@ -66,7 +66,7 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Call reusable CD workflow
-  # Runs ONLY on push to main
+  #
   # ---------------------------------------------------------------------------
   call-cd-workflow:
     name: Call Reusable CD Workflow
