@@ -87,6 +87,5 @@ jobs:
       playstore_status: draft
       package_name: com.devops.test
 
-
     secrets:
       PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
