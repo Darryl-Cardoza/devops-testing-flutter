@@ -1,0 +1,3 @@
+• Performance improvements
+• Bug fixes and stability enhancements
+• Improved user experience

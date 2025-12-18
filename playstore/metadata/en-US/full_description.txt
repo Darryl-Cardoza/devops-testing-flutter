@@ -1,0 +1,9 @@
+Your App Name helps you manage tasks, track progress, and stay productive.
+
+Key features:
+• Easy task creation and tracking
+• Secure login and data protection
+• Clean and intuitive interface
+• Works offline and online
+
+Designed for speed, reliability, and ease of use.

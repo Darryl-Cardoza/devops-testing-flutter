@@ -1,7 +1,3 @@
-# .github/workflows/ci-cd-caller.yml
-# Main workflow for Flutter CI/CD
-# Orchestrates reusable CI (push.yml) and CD (release.yml)
-
 name: Flutter CI/CD
 
 on:
@@ -13,10 +9,13 @@ on:
       - main
 
 permissions:
-  contents: write          # Required for GitHub Releases
+  contents: write
   pull-requests: read
   actions: read
   security-events: write
+
+env:
+  PACKAGE_NAME: com.devops.test
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -42,7 +41,6 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Call reusable CI workflow (tests, analysis, build)
-  # Runs on PRs and pushes
   # ---------------------------------------------------------------------------
   call-ci-workflow:
     name: Call Reusable CI Workflow
@@ -50,11 +48,12 @@ jobs:
     uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/push.yml@main
 
     with:
-
       flutter_version: ${{ vars.FLUTTER_VERSION }}
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
+      package_name: ${{ env.PACKAGE_NAME }}
+      version_name: ${{ needs.extract-version.outputs.version }}
 
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -63,10 +62,10 @@ jobs:
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       KEY_ALIAS: ${{ secrets.ALIAS }}
+      PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
 
   # ---------------------------------------------------------------------------
   # Call reusable CD workflow
-  #
   # ---------------------------------------------------------------------------
   call-cd-workflow:
     name: Call Reusable CD Workflow
@@ -75,9 +74,10 @@ jobs:
     uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/release.yml@main
 
     with:
+      # GitHub Release version
       version: ${{ needs.extract-version.outputs.version }}
 
-      # Cloud / Infra (disabled)
+      # Cloud / Infra
       deploy_to_cloud: false
       enable_aws: false
 
@@ -85,7 +85,7 @@ jobs:
       deploy_to_playstore: true
       playstore_track: internal
       playstore_status: draft
-      package_name: com.devops.test
+      package_name: ${{ env.PACKAGE_NAME }}
 
     secrets:
       PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
