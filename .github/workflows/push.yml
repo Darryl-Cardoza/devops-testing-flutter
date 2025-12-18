@@ -52,7 +52,7 @@ jobs:
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
-      package_name: "com.devops.test"
+      package_name: com.devops.test
       version_name: ${{ needs.extract-version.outputs.version }}
 
     secrets:
@@ -85,7 +85,7 @@ jobs:
       deploy_to_playstore: true
       playstore_track: internal
       playstore_status: draft
-      package_name: ${{ env.PACKAGE_NAME }}
+      package_name: com.devops.test
 
     secrets:
       PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
