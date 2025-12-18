@@ -52,7 +52,7 @@ jobs:
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
-      package_name: ${{ env.PACKAGE_NAME }}
+      package_name: "com.devops.test"
       version_name: ${{ needs.extract-version.outputs.version }}
 
     secrets:
