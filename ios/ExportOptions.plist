@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- App Store / TestFlight distribution -->
+  <key>method</key>
+  <string>app-store</string>
+
+  <!-- We control signing via cert + profile -->
+  <key>signingStyle</key>
+  <string>manual</string>
+
+  <!-- Disable bitcode (Flutter default) -->
+  <key>compileBitcode</key>
+  <false/>
+
+  <!-- Strip symbols not needed -->
+  <key>stripSwiftSymbols</key>
+  <true/>
+
+  <!-- Team ID (optional but recommended) -->
+  <key>teamID</key>
+  <string>8H4QNV2FVL</string>
+</dict>
+</plist>
