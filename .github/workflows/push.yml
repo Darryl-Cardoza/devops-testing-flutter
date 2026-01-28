@@ -68,7 +68,7 @@ jobs:
       IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
       IOS_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
 
-    # ---------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Call reusable CD workflow
   # ---------------------------------------------------------------------------
   call-cd-workflow:
