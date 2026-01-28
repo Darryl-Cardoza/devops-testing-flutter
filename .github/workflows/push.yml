@@ -53,6 +53,7 @@ jobs:
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
       package_name: com.devops.test
+      ios_bundle_id: app.devops.test
       version_name: ${{ needs.extract-version.outputs.version }}
 
     secrets:
@@ -64,9 +65,11 @@ jobs:
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       KEY_ALIAS: ${{ secrets.ALIAS }}
       PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
+
       IOS_CERT_P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
       IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
       IOS_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+
 
 
   # ---------------------------------------------------------------------------
