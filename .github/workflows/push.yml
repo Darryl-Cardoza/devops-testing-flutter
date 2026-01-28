@@ -15,8 +15,7 @@ permissions:
   security-events: write
 
 env:
-  ANDROID_PACKAGE_NAME: com.devops.test
-  IOS_BUNDLE_ID: app.devops.test
+  PACKAGE_NAME: com.devops.test
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -29,17 +28,19 @@ jobs:
       version: ${{ steps.version.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Extract Version from pubspec.yaml
         id: version
         run: |
+          # Example: version: 1.0.0+12 → 1.0.0
           version_string=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
           echo "version=${version_string}" >> $GITHUB_OUTPUT
           echo "Extracted version: ${version_string}"
 
   # ---------------------------------------------------------------------------
-  # Call reusable CI workflow (NO SIGNING)
+  # Call reusable CI workflow (tests, analysis, build)
   # ---------------------------------------------------------------------------
   call-ci-workflow:
     name: Call Reusable CI Workflow
@@ -50,12 +51,9 @@ jobs:
       flutter_version: ${{ vars.FLUTTER_VERSION }}
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
-
-      # CI only builds — no signing
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
-
-      package_name: ${{ env.ANDROID_PACKAGE_NAME }}
-      ios_bundle_id: ${{ env.IOS_BUNDLE_ID }}
+      package_name: com.devops.test
+      ios_bundle_id: app.devops.test
       version_name: ${{ needs.extract-version.outputs.version }}
 
     secrets:
@@ -63,45 +61,43 @@ jobs:
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
   # ---------------------------------------------------------------------------
-  # Call reusable CD workflow (SIGN + RELEASE)
+  # Call reusable CD workflow
   # ---------------------------------------------------------------------------
   call-cd-workflow:
     name: Call Reusable CD Workflow
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [extract-version, call-ci-workflow]
+    needs: [ extract-version, call-ci-workflow ]
     uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/release.yml@main
 
     with:
+      # GitHub Release version
       version: ${{ needs.extract-version.outputs.version }}
 
-      # ---------------- Cloud ----------------
+      # Cloud / Infra
       deploy_to_cloud: false
       enable_aws: false
 
-      # ---------------- Play Store ----------------
+      # Play Store (Android)
       deploy_to_playstore: true
       playstore_track: internal
       playstore_status: draft
-      package_name: ${{ env.ANDROID_PACKAGE_NAME }}
+      package_name: com.devops.test
 
-      # ---------------- TestFlight ----------------
+      # iOS / TestFlight
       deploy_to_testflight: true
-      ios_bundle_id: ${{ env.IOS_BUNDLE_ID }}
+      ios_bundle_id: app.devops.test
 
     secrets:
-      # ---------- Android signing ----------
       ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       KEY_ALIAS: ${{ secrets.ALIAS }}
       PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
 
-      # ---------- iOS signing ----------
-      IOS_CERT_P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
-      IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
-      IOS_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
-
-      # ---------- App Store Connect ----------
+      # If/when you enable TestFlight, uncomment these:
       APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
       APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
       APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+      IOS_CERT_P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
+      IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+      IOS_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
