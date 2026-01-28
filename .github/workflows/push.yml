@@ -38,7 +38,6 @@ jobs:
           version_string=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
           echo "version=${version_string}" >> $GITHUB_OUTPUT
           echo "Extracted version: ${version_string}"
-          
 
   # ---------------------------------------------------------------------------
   # Call reusable CI workflow (tests, analysis, build)
