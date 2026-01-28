@@ -78,7 +78,7 @@ jobs:
   call-cd-workflow:
     name: Call Reusable CD Workflow
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [extract-version, call-ci-workflow]
+    needs: [ extract-version, call-ci-workflow ]
     uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/release.yml@main
 
     with:
@@ -89,11 +89,20 @@ jobs:
       deploy_to_cloud: false
       enable_aws: false
 
-      # Play Store
+      # Play Store (Android)
       deploy_to_playstore: true
       playstore_track: internal
       playstore_status: draft
       package_name: com.devops.test
 
+      # iOS / TestFlight (optional)
+      deploy_to_testflight: true
+      ios_bundle_id: app.devops.test
+
     secrets:
       PLAYSTORE_SERVICE_ACCOUNT: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
+
+      # If/when you enable TestFlight, uncomment these:
+      APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+      APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+      APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
