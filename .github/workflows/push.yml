@@ -95,7 +95,7 @@ jobs:
       playstore_status: draft
       package_name: com.devops.test
 
-      # iOS / TestFlight (optional)
+      # iOS / TestFlight
       deploy_to_testflight: true
       ios_bundle_id: app.devops.test
 
