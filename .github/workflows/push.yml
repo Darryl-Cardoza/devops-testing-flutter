@@ -92,7 +92,7 @@ jobs:
       whats_new_file: release_notes/${{ needs.extract-version.outputs.version }}.txt
 
       # Esper
-      deploy_to_esper: true
+      deploy_to_esper: false
       esper_org_id: ${{ vars.ESPER_ORG_ID }}
       esper_app_id: ${{ vars.ESPER_APP_ID }}
 
