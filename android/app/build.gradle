@@ -7,8 +7,16 @@ plugins {
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file("key.properties")
+
+def hasKeystore = false
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+    def storeFilePath = keystoreProperties['storeFile']
+    if (storeFilePath != null) {
+        def storeFileObj = rootProject.file(storeFilePath)
+        hasKeystore = storeFileObj.exists()
+    }
 }
 
 
@@ -41,16 +49,20 @@ android {
 
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storePassword keystoreProperties['storePassword']
-            storeFile rootProject.file(keystoreProperties['storeFile'])
+            if (hasKeystore) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storePassword keystoreProperties['storePassword']
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (hasKeystore) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             shrinkResources false
         }
