@@ -86,6 +86,7 @@ jobs:
       # iOS / TestFlight
       deploy_to_testflight: true
       ios_bundle_id: app.devops.test
+      ios_team_id: ${{ secrets.APPLE_TEAM_ID }}
 
     secrets:
       ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
