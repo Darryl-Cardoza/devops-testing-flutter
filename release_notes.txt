@@ -1,0 +1,3 @@
+- Added OTP login
+- Improved performance
+- Fixed crash on startup

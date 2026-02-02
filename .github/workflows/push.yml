@@ -87,6 +87,10 @@ jobs:
       deploy_to_testflight: true
       ios_bundle_id: app.devops.test
 
+      build_number: ${{ github.run_number }}
+      enable_whats_new: true
+      whats_new_file: release_notes.txt
+
     secrets:
       ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
