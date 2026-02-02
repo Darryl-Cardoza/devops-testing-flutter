@@ -89,7 +89,13 @@ jobs:
 
       build_number: ${{ github.run_number }}
       enable_whats_new: true
-      whats_new_file: release_notes.txt
+      whats_new_file: release_notes/${{ needs.extract-version.outputs.version }}.txt
+
+      # Esper
+      deploy_to_esper: true
+      esper_org_id: ${{ vars.ESPER_ORG_ID }}
+      esper_app_id: ${{ vars.ESPER_APP_ID }}
+
 
     secrets:
       ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
@@ -106,5 +112,8 @@ jobs:
       IOS_CERT_P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
       IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
       IOS_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+
+      ESPER_API_KEY: ${{ secrets.ESPER_API_KEY }}
+
 
 
