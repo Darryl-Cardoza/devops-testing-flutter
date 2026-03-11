@@ -45,7 +45,7 @@ jobs:
   call-ci-workflow:
     name: Call Reusable CI Workflow
     needs: extract-version
-    uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/push.yml@main
+    uses: Rite-Technologies-23/ops-rite-flutter-cicd/.github/workflows/push.yml@main
 
     with:
       flutter_version: ${{ vars.FLUTTER_VERSION }}
@@ -67,7 +67,7 @@ jobs:
     name: Call Reusable CD Workflow
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [ extract-version, call-ci-workflow ]
-    uses: Darryl-Cardoza/flutter-reusable-repo/.github/workflows/release.yml@main
+    uses: Rite-Technologies-23/ops-rite-flutter-cicd/.github/workflows/release.yml@main
 
     with:
       # GitHub Release version
@@ -78,13 +78,13 @@ jobs:
       enable_aws: false
 
       # Play Store (Android)
-      deploy_to_playstore: true
+      deploy_to_playstore: false
       playstore_track: internal
       playstore_status: draft
       package_name: com.devops.test
 
       # iOS / TestFlight
-      deploy_to_testflight: true
+      deploy_to_testflight: false
       ios_bundle_id: app.devops.test
 
       build_number: ${{ github.run_number }}
@@ -92,7 +92,7 @@ jobs:
       whats_new_file: release_notes/${{ needs.extract-version.outputs.version }}.txt
 
       # Esper
-      deploy_to_esper: false
+      deploy_to_esper: true
       esper_org_id: ${{ vars.ESPER_ORG_ID }}
       esper_app_id: ${{ vars.ESPER_APP_ID }}
 
