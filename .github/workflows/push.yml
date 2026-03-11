@@ -95,6 +95,7 @@ jobs:
       deploy_to_esper: true
       esper_org_id: ${{ vars.ESPER_ORG_ID }}
       esper_app_id: ${{ vars.ESPER_APP_ID }}
+      esper_tenant: ${{ vars.ESPER_TENANT }}
 
 
     secrets:
