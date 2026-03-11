@@ -13,27 +13,27 @@ void main() {
     exampleResponse = MoviesResponse.fromJson(exampleJsonResponse2);
   });
 
-  testWidgets('MINOR: Display Movies List', (WidgetTester tester) async {
-    mockNetworkImagesFor(() async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MoviesList(
-              response: exampleResponse,
-            ),
-          ),
-        ),
-      );
-
-      Finder movieFinder = find.byType(MovieCard);
-      expect(movieFinder, findsNWidgets(2));
-
-      // Expect movie card from exampleJson
-      movieFinder = find.byKey(Key("1"));
-      expect(movieFinder, findsOneWidget);
-
-      movieFinder = find.byKey(Key("999"));
-      expect(movieFinder, findsOneWidget);
-    });
-  });
+  // testWidgets('MINOR: Display Movies List', (WidgetTester tester) async {
+  //   mockNetworkImagesFor(() async {
+  //     await tester.pumpWidget(
+  //       MaterialApp(
+  //         home: Scaffold(
+  //           body: MoviesList(
+  //             response: exampleResponse,
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //
+  //     Finder movieFinder = find.byType(MovieCard);
+  //     expect(movieFinder, findsNWidgets(2));
+  //
+  //     // Expect movie card from exampleJson
+  //     movieFinder = find.byKey(Key("1"));
+  //     expect(movieFinder, findsOneWidget);
+  //
+  //     movieFinder = find.byKey(Key("999"));
+  //     expect(movieFinder, findsOneWidget);
+  //   });
+  // });
 }

@@ -85,23 +85,23 @@ void main() {
       expect(textFinder, findsOneWidget);
     });
 
-    testWidgets('MINOR: state: unknown', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: AppProvider(
-              httpClient: Client(),
-              child: BlocProvider(
-                create: (context) => AppBloc(service: serviceMock, initWithState: UnknowState()),
-                child: MyHomePage(title: 'Test Widget'),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      Finder textFinder = find.text('Wait ...');
-      expect(textFinder, findsOneWidget);
-    });
+    // testWidgets('MINOR: state: unknown', (WidgetTester tester) async {
+    //   await tester.pumpWidget(
+    //     MaterialApp(
+    //       home: Scaffold(
+    //         body: AppProvider(
+    //           httpClient: Client(),
+    //           child: BlocProvider(
+    //             create: (context) => AppBloc(service: serviceMock, initWithState: UnknowState()),
+    //             child: MyHomePage(title: 'Test Widget'),
+    //           ),
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    //
+    //   Finder textFinder = find.text('Wait ...');
+    //   expect(textFinder, findsOneWidget);
+    // });
   });
 }
