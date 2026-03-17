@@ -95,7 +95,7 @@ jobs:
       # Esper
       deploy_to_esper_android: false
       deploy_to_esper_ios: true
-      esper_app_id: ${{ vars.ESPER_APP_ID }}
+      esper_org_id: ${{ vars.ESPER_ORG_ID }}
       esper_tenant: ${{ vars.ESPER_TENANT }}
 
 
