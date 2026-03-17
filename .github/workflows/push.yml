@@ -51,6 +51,7 @@ jobs:
       flutter_version: ${{ vars.FLUTTER_VERSION }}
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
+      build_android: false
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
       package_name: com.devops.test
       ios_bundle_id: app.devops.test
@@ -94,7 +95,6 @@ jobs:
       # Esper
       deploy_to_esper_android: false
       deploy_to_esper_ios: true
-      esper_org_id: ${{ vars.ESPER_ORG_ID }}
       esper_app_id: ${{ vars.ESPER_APP_ID }}
       esper_tenant: ${{ vars.ESPER_TENANT }}
 
