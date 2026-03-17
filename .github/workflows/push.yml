@@ -51,7 +51,6 @@ jobs:
       flutter_version: ${{ vars.FLUTTER_VERSION }}
       flutter_channel: ${{ vars.FLUTTER_CHANNEL }}
       coverage_threshold: ${{ vars.COVERAGE_THRESHOLD }}
-      build_android: false
       build_ios: ${{ vars.BUILD_IOS == 'true' }}
       package_name: com.devops.test
       ios_bundle_id: app.devops.test
